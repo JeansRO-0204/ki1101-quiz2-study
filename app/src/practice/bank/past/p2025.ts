@@ -15,9 +15,13 @@ export const paper: PastPaper = {
         {
           id: 'p25-1a', lecture: 'L7', topic: 'Electron configuration', source: 'past', difficulty: 1,
           past: { paper: 'kuis2-2025', label: '1a', points: 5 },
-          kind: 'open',
+          kind: 'short',
           stem: r`Write the atomic number, group and period of atom A.`,
-          answer: r`$Z = 20$ (Ca), group 2 (IIA), period 4.`,
+          blanks: [
+            { label: 'Atomic number Z', type: 'number', accept: ['20'], tol: { abs: 0 }, wrong: [{ match: '18', msg: '18 is the electron count of A²⁺. Add back the 2 electrons it lost to get the neutral atom.' }] },
+            { label: 'Group', type: 'text', accept: ['2', 'IIA', '2A', 'II A', 'group 2', 'group IIA', 'golongan 2', 'golongan IIA'] },
+            { label: 'Period', type: 'number', accept: ['4'], tol: { abs: 0 } },
+          ],
           hints: [
             r`A²⁺ has lost 2 electrons. Count the electrons shown in the configuration, then think about what the neutral atom must have.`,
             r`The atomic number equals the number of electrons in the neutral atom. Write the neutral configuration to find the valence shell.`,
@@ -30,7 +34,7 @@ export const paper: PastPaper = {
           explanation: r`The ion $\text{A}^{2+}$ has $2+2+6+2+6 = 18$ electrons. A cation of charge $+2$ has lost two electrons, so the neutral atom has $18+2 = 20$ electrons, i.e. $Z = 20$, which is calcium. Its ground-state configuration is $[\text{Ar}]4s^2$ (the two electrons were removed from the outermost $4s$ orbital). The highest shell is $n=4$, so it is in **period 4**; two valence electrons in an s subshell place it in **group 2 (IIA)**.`,
           indo: {
             stem: r`Tuliskan nomor atom, golongan, dan periode untuk atom A.`,
-            answer: r`$Z = 20$ (Ca), golongan 2 (IIA), periode 4.`,
+            labels: ['Nomor atom Z', 'Golongan', 'Periode'],
             hints: [
               r`A²⁺ telah melepas 2 elektron. Hitung elektron pada konfigurasi yang diberikan, lalu pikirkan jumlah elektron atom netralnya.`,
               r`Nomor atom sama dengan jumlah elektron atom netral. Tuliskan konfigurasi atom netral untuk menemukan kulit valensi.`,
@@ -46,9 +50,14 @@ export const paper: PastPaper = {
         {
           id: 'p25-1b-i', lecture: 'L7', topic: 'Quantum numbers', source: 'past', difficulty: 2,
           past: { paper: 'kuis2-2025', label: '1b(i)', points: 10 },
-          kind: 'open',
+          kind: 'short',
           stem: r`Write the 4 quantum numbers ($n$, $l$, $m_l$ and $m_s$) for a valence electron of atom A in its ground state.`,
-          answer: r`$n = 4$, $l = 0$, $m_l = 0$, $m_s = +\tfrac12$ (or $-\tfrac12$; the two valence electrons differ only in $m_s$).`,
+          blanks: [
+            { label: 'n', type: 'number', accept: ['4'], tol: { abs: 0 } },
+            { label: 'l', type: 'number', accept: ['0'], tol: { abs: 0 } },
+            { label: 'mₗ', type: 'number', accept: ['0'], tol: { abs: 0 } },
+            { label: 'mₛ', type: 'text', accept: ['+1/2', '-1/2', '1/2', '+½', '-½', '½', '−1/2', '−½', '+0.5', '-0.5', '0.5'] },
+          ],
           hints: [
             r`First write the ground-state valence configuration of A and identify the subshell holding the valence electrons.`,
             r`$n$ is the shell number; $l = 0, 1, 2, 3$ for s, p, d, f; $m_l$ runs from $-l$ to $+l$.`,
@@ -63,7 +72,7 @@ export const paper: PastPaper = {
           explanation: r`A is calcium, $[\text{Ar}]4s^2$, so the valence electrons are in the $4s$ orbital: $n = 4$, $l = 0$ (s), $m_l = 0$ (the only value when $l = 0$). The two electrons in this orbital have opposite spins, so $m_s = +\tfrac12$ for one and $-\tfrac12$ for the other. A valid answer is $(n, l, m_l, m_s) = (4, 0, 0, +\tfrac12)$; $(4, 0, 0, -\tfrac12)$ is equally correct.`,
           indo: {
             stem: r`Tuliskan 4 bilangan kuantum ($n$, $l$, $m_l$, dan $m_s$) untuk elektron valensi atom A pada keadaan dasar.`,
-            answer: r`$n = 4$, $l = 0$, $m_l = 0$, $m_s = +\tfrac12$ (atau $-\tfrac12$; kedua elektron valensi hanya berbeda pada $m_s$).`,
+            labels: ['n', 'l', 'mₗ', 'mₛ'],
             hints: [
               r`Tuliskan dahulu konfigurasi valensi A pada keadaan dasar dan tentukan subkulit tempat elektron valensinya.`,
               r`$n$ adalah nomor kulit; $l = 0, 1, 2, 3$ untuk s, p, d, f; $m_l$ bernilai dari $-l$ sampai $+l$.`,
@@ -185,9 +194,9 @@ Ini adalah tahap afinitas elektron fluorin (energi dilepaskan). Tanda negatif be
         {
           id: 'p25-2b', lecture: 'L8', topic: 'Lattice energy', source: 'past', difficulty: 2,
           past: { paper: 'kuis2-2025', label: '2b', points: 10 },
-          kind: 'open',
+          kind: 'order',
           stem: r`Rank the lattice energies of LiF, NaF and $\text{MgF}_2$ from highest to lowest.`,
-          answer: r`$\text{MgF}_2 > \text{LiF} > \text{NaF}$`,
+          items: ['LiF', 'NaF', 'MgF₂'], answer: [2, 0, 1], ends: ['highest', 'lowest'],
           hints: [
             r`Lattice energy scales roughly with $\dfrac{q_+ q_-}{d}$: the product of the ion charges over the distance between the ions.`,
             r`Compare the charges first. For ions with equal charge, compare the ionic radii.`,
@@ -206,7 +215,7 @@ Ini adalah tahap afinitas elektron fluorin (energi dilepaskan). Tanda negatif be
 Therefore $\text{MgF}_2 > \text{LiF} > \text{NaF}$. (Magnitudes: LiF about 1036 kJ/mol as given in the table; the trend follows the order above.)`,
           indo: {
             stem: r`Urutkan energi kisi dari yang paling tinggi untuk LiF, NaF, dan $\text{MgF}_2$.`,
-            answer: r`$\text{MgF}_2 > \text{LiF} > \text{NaF}$`,
+            ends: ['tertinggi', 'terendah'],
             hints: [
               r`Energi kisi kira-kira sebanding dengan $\dfrac{q_+ q_-}{d}$: hasil kali muatan ion dibagi jarak antar ion.`,
               r`Bandingkan muatan terlebih dahulu. Untuk ion dengan muatan sama, bandingkan jari-jari ionnya.`,
@@ -235,9 +244,9 @@ Jadi $\text{MgF}_2 > \text{LiF} > \text{NaF}$. (Besarnya: LiF sekitar 1036 kJ/mo
         {
           id: 'p25-3a', lecture: 'L7', topic: 'Periodic trends', source: 'past', difficulty: 2,
           past: { paper: 'kuis2-2025', label: '3a', points: 6 },
-          kind: 'open',
+          kind: 'order',
           stem: r`Rank the ionic radii of $\text{Na}^+$, $\text{O}^{2-}$ and $\text{F}^-$ from smallest to largest.`,
-          answer: r`$\text{Na}^+ < \text{F}^- < \text{O}^{2-}$`,
+          items: ['Na⁺', 'O²⁻', 'F⁻'], answer: [0, 2, 1], ends: ['smallest', 'largest'],
           hints: [
             r`Count the electrons in each ion. What do you notice?`,
             r`For isoelectronic species, compare the nuclear charge: more protons pull the same electron cloud tighter.`,
@@ -250,7 +259,7 @@ Jadi $\text{MgF}_2 > \text{LiF} > \text{NaF}$. (Besarnya: LiF sekitar 1036 kJ/mo
           explanation: r`$\text{Na}^+$, $\text{F}^-$ and $\text{O}^{2-}$ are isoelectronic (10 electrons, $[\text{Ne}]$ configuration). For isoelectronic ions the radius decreases as nuclear charge increases, because the same electron cloud is held by more protons: $Z(\text{Na}) = 11 > Z(\text{F}) = 9 > Z(\text{O}) = 8$. Smallest to largest: **$\text{Na}^+ < \text{F}^- < \text{O}^{2-}$**.`,
           indo: {
             stem: r`Urutkan ukuran jari-jari ion dari yang paling kecil untuk $\text{Na}^+$, $\text{O}^{2-}$, dan $\text{F}^-$.`,
-            answer: r`$\text{Na}^+ < \text{F}^- < \text{O}^{2-}$`,
+            ends: ['terkecil', 'terbesar'],
             hints: [
               r`Hitung jumlah elektron pada tiap ion. Apa yang kamu lihat?`,
               r`Untuk spesi isoelektronik, bandingkan muatan inti: proton lebih banyak menarik awan elektron yang sama lebih kuat.`,
@@ -266,9 +275,9 @@ Jadi $\text{MgF}_2 > \text{LiF} > \text{NaF}$. (Besarnya: LiF sekitar 1036 kJ/mo
         {
           id: 'p25-3b', lecture: 'L7', topic: 'Periodic trends', source: 'past', difficulty: 2,
           past: { paper: 'kuis2-2025', label: '3b', points: 6 },
-          kind: 'open',
+          kind: 'order',
           stem: r`Rank the first ionisation energies of the atoms Br, K and Ni from largest to smallest.`,
-          answer: r`$\text{Br} > \text{Ni} > \text{K}$`,
+          items: ['Br', 'K', 'Ni'], answer: [0, 2, 1], ends: ['largest', 'smallest'],
           hints: [
             r`Locate the three elements in period 4 using the periodic table on the paper.`,
             r`Within a period, ionisation energy generally rises from left (alkali metals) to right (halogens). Ask where the transition metal Ni falls between the two.`,
@@ -281,7 +290,7 @@ Jadi $\text{MgF}_2 > \text{LiF} > \text{NaF}$. (Besarnya: LiF sekitar 1036 kJ/mo
           explanation: r`K, Ni and Br are all in period 4 (groups 1, 10 and 17). Across a period, $Z_{\text{eff}}$ increases and atomic radius decreases, so the outer electron is held more tightly and the first ionisation energy rises: the alkali metal K is lowest and the halogen Br is highest, with the transition metal Ni in between. Largest to smallest: **$\text{Br} > \text{Ni} > \text{K}$** (experimentally about 1140, 737 and 419 kJ/mol).`,
           indo: {
             stem: r`Urutkan nilai energi ionisasi pertama dari yang paling besar untuk atom-atom Br, K, dan Ni.`,
-            answer: r`$\text{Br} > \text{Ni} > \text{K}$`,
+            ends: ['terbesar', 'terkecil'],
             hints: [
               r`Tentukan posisi ketiga unsur pada periode 4 menggunakan tabel periodik di soal.`,
               r`Dalam satu periode, energi ionisasi umumnya naik dari kiri (logam alkali) ke kanan (halogen). Pikirkan di mana logam transisi Ni berada di antara keduanya.`,
@@ -297,9 +306,12 @@ Jadi $\text{MgF}_2 > \text{LiF} > \text{NaF}$. (Besarnya: LiF sekitar 1036 kJ/mo
         {
           id: 'p25-3c', lecture: 'L7', topic: 'Periodic trends', source: 'past', difficulty: 2,
           past: { paper: 'kuis2-2025', label: '3c', points: 8 },
-          kind: 'open',
+          kind: 'short',
           stem: r`Write the reaction equation for the fourth ionisation step of a Se atom.`,
-          answer: r`$\text{Se}^{3+}\text{(g)} \longrightarrow \text{Se}^{4+}\text{(g)} + \text{e}^-$`,
+          blanks: [
+            { label: 'Equation', type: 'equation', accept: ['Se^3+(g) -> Se^4+(g) + e^-'], placeholder: 'Se^3+(g) -> Se^4+(g) + e^-',
+              wrong: [{ match: 'Se(g) -> Se^4+(g) + 4e^-', msg: 'That is the sum of the first four ionisations. The fourth step starts from Se³⁺ and removes just one electron.' }] },
+          ],
           hints: [
             r`Ionisation steps are sequential: each removes one electron from the species left by the previous step.`,
             r`Work out the charge of the species that enters the fourth step and the charge it has afterwards. Remember the gas state.`,
@@ -316,7 +328,7 @@ $$\text{Se}^{3+}\text{(g)} \longrightarrow \text{Se}^{4+}\text{(g)} + \text{e}^-
 (this step is not $\text{Se(g)} \to \text{Se}^{4+} + 4\text{e}^-$, which would be the sum of the first four ionisations).`,
           indo: {
             stem: r`Tuliskan persamaan reaksi untuk tahap Ionisasi ke empat dari atom Se.`,
-            answer: r`$\text{Se}^{3+}\text{(g)} \longrightarrow \text{Se}^{4+}\text{(g)} + \text{e}^-$`,
+            labels: ['Persamaan reaksi'],
             hints: [
               r`Tahap ionisasi berurutan: tiap tahap melepas satu elektron dari spesi hasil tahap sebelumnya.`,
               r`Tentukan muatan spesi yang masuk ke tahap keempat dan muatannya sesudahnya. Ingat wujud gas.`,
@@ -381,6 +393,12 @@ $$\text{Se}^{3+}\text{(g)} \longrightarrow \text{Se}^{4+}\text{(g)} + \text{e}^-
 - **III** (N–O–O–N skeleton): N–O–O⁺=N with lone pairs completing the octets: left N 3 lone pairs, left O 2, right O 1, right N 2 (large formal charges, unlikely).
 
 Structure I, $\text{O–N=N–O}$ with an N=N double bond, is the real hyponitrite structure.`,
+          rubric: [
+            r`Each structure has 24 valence electrons (12 pairs) in total`,
+            r`Each structure gives every atom a complete octet`,
+            r`Three structures that are genuinely different (different double-bond position or skeleton)`,
+            r`Lone pairs and bonds are drawn explicitly, with the ion's 2− charge shown`,
+          ],
           hints: [
             r`24 electrons = 12 pairs. Start with a skeleton and place single bonds, then complete octets on the outer atoms first.`,
             r`If a central atom lacks an octet, convert lone pairs into double bonds. N usually forms 3 bonds with 1 lone pair, O forms 2 bonds with 2 lone pairs when neutral.`,
@@ -410,6 +428,12 @@ Because the question only asks for three possible structures, any three valid 24
 - **III** (kerangka N–O–O–N): N–O–O⁺=N dengan pasangan bebas melengkapi oktet: N kiri 3, O kiri 2, O kanan 1, N kanan 2 (muatan besar, tidak lazim).
 
 Struktur I, $\text{O–N=N–O}$ dengan ikatan rangkap N=N, adalah struktur hiponitrit yang sebenarnya.`,
+            rubric: [
+              r`Tiap struktur memiliki total 24 elektron valensi (12 pasang)`,
+              r`Tiap struktur memenuhi oktet untuk setiap atom`,
+              r`Tiga struktur yang benar-benar berbeda (posisi ikatan rangkap atau kerangka berbeda)`,
+              r`Pasangan bebas dan ikatan digambar eksplisit, dengan muatan ion 2− ditunjukkan`,
+            ],
             hints: [
               r`24 elektron = 12 pasang. Mulailah dengan kerangka dan ikatan tunggal, lalu lengkapi oktet atom terluar lebih dulu.`,
               r`Jika atom pusat belum oktet, ubah pasangan bebas menjadi ikatan rangkap. N biasanya 3 ikatan dengan 1 pasangan bebas; O netral 2 ikatan dengan 2 pasangan bebas.`,
@@ -438,6 +462,12 @@ Karena soal hanya meminta tiga struktur yang mungkin, tiga struktur valid 24 ele
           kind: 'open',
           stem: r`Write the formal charge of each atom in each Lewis structure of the $\text{N}_2\text{O}_2^{2-}$ ion from your answer to part (a), then decide which Lewis structure is the most stable.`,
           answer: r`Structure I (O–N=N–O): O $-1$, N $0$, N $0$, O $-1$. Structure II (O=N–N–O): O $0$, N $0$, N $-1$, O $-1$. Structure III (N–O–O–N type): large charges ($-2$, $+1$, ...). Most stable: **structure I**, O–N=N–O, with $-1$ on each (more electronegative) O and $0$ on N.`,
+          rubric: [
+            r`Formal charges are computed correctly for every atom in each structure (FC = V − lone-pair e⁻ − bonds)`,
+            r`Formal charges in each structure sum to the ion's charge, −2`,
+            r`Chooses the structure with formal charges closest to zero (O–N=N–O)`,
+            r`Negative formal charge sits on the more electronegative atom (O rather than N)`,
+          ],
           hints: [
             r`$FC = V - N_{\text{lone}} - B$, where $B$ is the number of bonds (shared pairs) to the atom.`,
             r`The sum of the formal charges must equal the charge of the ion ($2-$).`,
@@ -461,6 +491,12 @@ The most stable structure has formal charges closest to zero, with negative form
           indo: {
             stem: r`Tuliskan muatan formal setiap atom untuk setiap struktur Lewis ion $\text{N}_2\text{O}_2^{2-}$ pada jawaban soal a, kemudian tentukan struktur Lewis yang paling stabil.`,
             answer: r`Struktur I (O–N=N–O): O $-1$, N $0$, N $0$, O $-1$. Struktur II (O=N–N–O): O $0$, N $0$, N $-1$, O $-1$. Struktur III (jenis N–O–O–N): muatan besar ($-2$, $+1$, ...). Paling stabil: **struktur I**, O–N=N–O, dengan $-1$ pada tiap O (lebih elektronegatif) dan $0$ pada N.`,
+            rubric: [
+              r`Muatan formal dihitung benar untuk setiap atom pada tiap struktur (MF = V − e⁻ bebas − ikatan)`,
+              r`Jumlah muatan formal tiap struktur sama dengan muatan ion, −2`,
+              r`Memilih struktur dengan muatan formal paling dekat dengan nol (O–N=N–O)`,
+              r`Muatan formal negatif berada pada atom yang lebih elektronegatif (O, bukan N)`,
+            ],
             hints: [
               r`$MF = V - E_{\text{bebas}} - I$, dengan $I$ jumlah ikatan (pasangan bersama) pada atom.`,
               r`Jumlah muatan formal harus sama dengan muatan ion ($2-$).`,
@@ -497,9 +533,13 @@ $$\begin{matrix} & \text{O} & \\ & \text{X} & \\ \text{O} & & \text{O} \end{matr
         {
           id: 'p25-5a', lecture: 'L10', topic: 'VSEPR shapes', source: 'past', difficulty: 2,
           past: { paper: 'kuis2-2025', label: '5a', points: 10 },
-          kind: 'open',
+          kind: 'short',
           stem: r`Write the bond angle and the name of the molecular shape.`,
-          answer: r`X is N, so the ion is $\text{NO}_3^-$: bond angle $120^\circ$, trigonal planar.`,
+          blanks: [
+            { label: 'Bond angle', type: 'number', accept: ['120'], unit: '°', tol: { abs: 1 } },
+            { label: 'Molecular shape', type: 'text', accept: ['trigonal planar', 'planar trigonal', 'trigonal plane', 'triangular planar', 'planar triangular', 'segitiga planar', 'planar segitiga', 'segitiga datar', 'trigonal datar'],
+              wrong: [{ match: 'trigonal pyramidal', msg: 'Pyramidal needs a lone pair on the central atom. N in NO₃⁻ has none: 3 bonding domains, 0 lone pairs.' }] },
+          ],
           hints: [
             r`Identify X from its atomic number, then count the total valence electrons of the ion.`,
             r`Draw the Lewis structure (with resonance), then count electron domains around the central atom.`,
@@ -514,7 +554,7 @@ $$\begin{matrix} & \text{O} & \\ & \text{X} & \\ \text{O} & & \text{O} \end{matr
           explanation: r`The element with $Z = 7$ is nitrogen, so the ion is nitrate, $\text{NO}_3^-$, with $5 + 3(6) + 1 = 24$ valence electrons. The Lewis structure has one N=O and two N–O⁻ bonds (three equivalent resonance forms), and no lone pair on N. The central N therefore has three electron domains, all bonding (AX₃). By VSEPR (L10) the domains spread as far apart as possible: **trigonal planar**, with O–N–O bond angles of **$120^\circ$**. (The drawn arrangement in the question is only a skeleton, not the geometry.)`,
           indo: {
             stem: r`Tuliskan besar sudut ikatan dan nama bentuk molekulnya.`,
-            answer: r`X adalah N, sehingga ion adalah $\text{NO}_3^-$: sudut ikatan $120^\circ$, bentuk segitiga planar (trigonal planar).`,
+            labels: ['Sudut ikatan', 'Bentuk molekul'],
             hints: [
               r`Tentukan X dari nomor atomnya, lalu hitung total elektron valensi ion.`,
               r`Gambar struktur Lewis (dengan resonansi), lalu hitung domain elektron di sekitar atom pusat.`,

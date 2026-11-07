@@ -335,7 +335,8 @@ function Bench({ ctx, mode, hasTask, resRequested, onResult, compact }: {
   // ---- drawing data ----
   const drawBonds: DrawBond[] = edges.map(([a, b]) => ({ a, b, order: work.bonds[bkey(a, b)] }))
   const showElec = !learn || stepDone[1]
-  const badges: (NodeBadge | null)[] | null = showElec
+  // Test mode hides the live aids (counts, formal charges): the learner must work them out, as on paper
+  const badges: (NodeBadge | null)[] | null = showElec && learn
     ? an.atoms.map((x) => {
       if (x.count === 0) return null
       if (!learn) return { text: String(x.count), tone: 'plain' as const }
@@ -349,7 +350,7 @@ function Bench({ ctx, mode, hasTask, resRequested, onResult, compact }: {
       }
     })
     : null
-  const fcArr = showElec && an.used === an.avail ? an.atoms.map((x) => x.fc) : null
+  const fcArr = learn && showElec && an.used === an.avail ? an.atoms.map((x) => x.fc) : null
 
   const budgetCls = an.used === an.avail ? (learn ? ' full' : '') : an.used > an.avail ? (learn ? ' over' : '') : ''
   const help = selBond
@@ -507,7 +508,7 @@ function Bench({ ctx, mode, hasTask, resRequested, onResult, compact }: {
           <p className="lewis-hint" style={{ marginTop: 0 }}>
             Switch to <b>Electrons</b> on the canvas. Complete terminal octets first, put leftovers on the central atom, then upgrade bonds if the central atom is short. The budget bar tracks electrons used.
           </p>
-          {showElec && (
+          {showElec && learn && (
             <table className="lewis-tbl">
               <thead><tr><th>Atom</th><th>e⁻ around</th>{learn && <th>Octet</th>}<th>Formal charge = valence − (bonds + unshared)</th></tr></thead>
               <tbody>

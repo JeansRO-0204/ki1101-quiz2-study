@@ -85,7 +85,7 @@ export interface Lecture {
 
 /* ---------- practice ---------- */
 /** Indonesian text for a question (past quizzes are originally in Indonesian). Any field left out falls back to English. */
-export interface QIndo { stem?: string; options?: string[]; explanation?: string; hints?: string[]; work?: string[]; answer?: string }
+export interface QIndo { stem?: string; options?: string[]; explanation?: string; hints?: string[]; work?: string[]; answer?: string; rubric?: string[]; labels?: string[]; items?: string[]; ends?: [string, string] }
 
 interface QBase {
   id: string
@@ -118,8 +118,44 @@ export interface NumericQ extends QBase {
 }
 export interface WidgetQ extends QBase { kind: 'widget'; widget: keyof Tasks; task: Tasks[keyof Tasks] }
 /** Free-response question: learner writes their answer, then compares with the model answer and self-grades. */
-export interface OpenQ extends QBase { kind: 'open'; /** model answer, markdown */ answer: string }
-export type Question = MCQ | NumericQ | WidgetQ | OpenQ
+export interface OpenQ extends QBase {
+  kind: 'open'
+  /** model answer, markdown */
+  answer: string
+  /** key points the answer must contain; the learner ticks the ones they got (score = ticked / total) */
+  rubric?: string[]
+}
+
+/** One typed blank of a ShortQ. Answers are compared after normalising for `type`:
+ *  text     case/space/punctuation-insensitive ("Paramagnetic" = "paramagnetic.")
+ *  number   numeric within `tol` (accept[0] is the value), accepts 6.6e-34, 6,6 × 10^-34
+ *  formula  sub/superscripts unified: "SO4^2-" = "SO₄²⁻"
+ *  config   electron configuration as subshell occupancies; noble-gas cores expanded, order ignored: "[Ar]4s2 3d6" = "1s2 2s2 2p6 3s2 3p6 3d6 4s2"
+ *  equation reaction: species compared per side as sets, state labels (g)/(aq) optional, "->" = "→"
+ */
+export interface Blank {
+  label: string
+  accept: string[]
+  type?: 'text' | 'number' | 'formula' | 'config' | 'equation'
+  tol?: { rel?: number; abs?: number }
+  unit?: string
+  placeholder?: string
+  /** targeted feedback for common wrong answers (matched after the same normalisation) */
+  wrong?: { match: string; msg: string }[]
+}
+/** Short typed answer(s): one or more labelled blanks, each auto-checked. */
+export interface ShortQ extends QBase { kind: 'short'; blanks: Blank[] }
+/** Put items in order. `ends` labels the two ends, e.g. ['smallest', 'largest']. */
+export interface OrderQ extends QBase {
+  kind: 'order'
+  items: string[]
+  /** item indexes from first to last */
+  answer: number[]
+  ends: [string, string]
+  /** groups of item indexes that are equal (their mutual order is not marked) */
+  ties?: number[][]
+}
+export type Question = MCQ | NumericQ | WidgetQ | OpenQ | ShortQ | OrderQ
 
 /** One numbered problem (SOAL) of a past quiz; each sub-part (a, b, c…) is a Question. */
 export interface PastProblem {

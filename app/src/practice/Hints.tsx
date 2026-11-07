@@ -25,6 +25,10 @@ export function loc(q: Question, lang: Lang) {
     hints: id?.hints ?? q.hints ?? [],
     work: id?.work ?? q.work ?? splitWork(id?.explanation ?? q.explanation),
     answer: q.kind === 'open' ? (id?.answer ?? q.answer) : undefined,
+    rubric: q.kind === 'open' ? (id?.rubric?.length === q.rubric?.length ? id?.rubric : q.rubric) : undefined,
+    labels: q.kind === 'short' ? q.blanks.map((b, i) => id?.labels?.[i] ?? b.label) : undefined,
+    items: q.kind === 'order' ? (id?.items?.length === q.items.length ? id.items : q.items) : undefined,
+    ends: q.kind === 'order' ? (id?.ends ?? q.ends) : undefined,
   }
 }
 

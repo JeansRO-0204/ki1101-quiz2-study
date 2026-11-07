@@ -1,4 +1,4 @@
-import type { PastPaper, PastProblem, Question, LectureId } from '../../../types'
+import type { PastPaper, PastProblem, Question, LectureId, Blank, Tasks } from '../../../types'
 
 const r = String.raw
 const PID = 'kuis2-2022'
@@ -34,9 +34,16 @@ function common(b: B) {
     explanation: b.e,
   }
 }
-function open(b: B & { a: string; ai: string }): Question {
-  return { ...common(b), kind: 'open', answer: b.a, indo: { stem: b.si, answer: b.ai, hints: b.hi, work: b.wi, explanation: b.ei } }
+function open(b: B & { a: string; ai: string; rub: string[]; rubi: string[] }): Question {
+  return { ...common(b), kind: 'open', answer: b.a, rubric: b.rub, indo: { stem: b.si, answer: b.ai, hints: b.hi, work: b.wi, explanation: b.ei, rubric: b.rubi } }
 }
+function short(b: B & { blanks: Blank[]; labels: string[] }): Question {
+  return { ...common(b), kind: 'short', blanks: b.blanks, indo: { stem: b.si, hints: b.hi, work: b.wi, explanation: b.ei, labels: b.labels } }
+}
+function wid<K extends keyof Tasks>(b: B & { widget: K; task: Tasks[K] }): Question {
+  return { ...common(b), kind: 'widget', widget: b.widget, task: b.task, indo: { stem: b.si, hints: b.hi, work: b.wi, explanation: b.ei } }
+}
+const MS = ['+1/2', '-1/2', '1/2', '+½', '-½', '½', '0.5', '+0.5', '-0.5']
 function num(b: B & { a: number; unit?: string; tol?: { rel?: number; abs?: number } }): Question {
   return { ...common(b), kind: 'numeric', answer: b.a, unit: b.unit, tol: b.tol, indo: { stem: b.si, hints: b.hi, work: b.wi, explanation: b.ei } }
 }
@@ -66,18 +73,21 @@ function q2(
     ionsWhyId: string
     extra?: string
     extraId?: string
-    ionIds?: number
+    cfgAcc: string[] // typed-answer config(s)
+    grpAcc: string[]
+    ionRub: string[]
+    ionRubId: string[]
   },
 ): Question[] {
   const ex = o.extra ?? ''
   const exI = o.extraId ?? ''
   return [
-    open({
+    short({
       label: `${v}-2a`, pts: 6, lec: 'L7', topic: 'Electron configuration',
       s: r`Write the electron configuration of element X (Z = ${o.Z}).`,
       si: r`Tuliskan konfigurasi elektron unsur tersebut.`,
-      a: r`$${o.cfg}$ (equivalently $${o.cfgFull}$). Element X = ${o.nameEn}.`,
-      ai: r`$${o.cfg}$ (atau $${o.cfgFull}$). Unsur X = ${o.nameEn}.`,
+      blanks: [{ label: 'Electron configuration', type: 'config', accept: o.cfgAcc, placeholder: '[Kr] 4d… 5s…' }],
+      labels: ['Konfigurasi elektron'],
       h: [r`Start from the noble gas just below: Kr has 36 electrons. How many electrons are left to place?`, r`Fill in Aufbau order after Kr: 5s, then 4d, then 5p.`],
       hi: [r`Mulai dari gas mulia di bawahnya: Kr punya 36 elektron. Berapa elektron yang tersisa?`, r`Isi menurut urutan Aufbau setelah Kr: 5s, lalu 4d, lalu 5p.`],
       w: [r`${o.fill}`, r`Fill 5s first, then 4d, then 5p.`, r`$${o.cfg}$ — this is ${o.nameEn} (${o.sym}).`],
@@ -85,12 +95,17 @@ function q2(
       e: r`${o.fill} Filling in Aufbau order gives $${o.cfgFull}$, i.e. $${o.cfg}$.${ex} Writing the shells out of order (e.g. $3d$ before $4s$) is also accepted. (L7)`,
       ei: r`${o.fillId} Pengisian menurut Aufbau memberi $${o.cfgFull}$, yaitu $${o.cfg}$.${exI} Penulisan kulit tidak berurutan (mis. $3d$ sebelum $4s$) juga dibenarkan. (L7)`,
     }),
-    open({
+    short({
       label: `${v}-2b`, pts: 8, lec: 'L7', topic: 'Quantum numbers',
       s: r`Give the four quantum numbers of the outermost electron of X.`,
       si: r`Tuliskan keempat bilangan kuantum untuk elektron terluar.`,
-      a: r`$n=5,\ \ell=0,\ m_\ell=0,\ m_s=+\tfrac12$ (or $-\tfrac12$).`,
-      ai: r`$n=5,\ \ell=0,\ m_\ell=0,\ m_s=+\tfrac12$ (atau $-\tfrac12$).`,
+      blanks: [
+        { label: 'n', type: 'text', accept: ['5'] },
+        { label: 'ℓ', type: 'text', accept: o.Z === 50 ? ['0', '1'] : ['0'] },
+        { label: 'mₗ', type: 'text', accept: o.Z === 50 ? ['0', '1', '+1', '-1'] : ['0'] },
+        { label: 'mₛ', type: 'text', accept: MS },
+      ],
+      labels: ['n', 'ℓ', 'mₗ', 'mₛ'],
       h: [r`The outermost electron is in the highest-$n$ shell that is occupied.`, r`Identify its subshell letter, then convert it to $\ell$ ($s=0$, $p=1$, $d=2$). $m_\ell$ runs from $-\ell$ to $+\ell$.`],
       hi: [r`Elektron terluar berada di kulit dengan $n$ terbesar yang terisi.`, r`Tentukan subkulitnya lalu ubah ke $\ell$ ($s=0$, $p=1$, $d=2$). $m_\ell$ bernilai $-\ell$ sampai $+\ell$.`],
       w: [r`Outermost shell: $n=5$ (the $5s$ electrons, as in the answer key).`, r`$s$ subshell: $\ell=0$, so $m_\ell=0$ only.`, r`Spin is $m_s=+\tfrac12$ or $-\tfrac12$ (either is accepted).`],
@@ -98,12 +113,15 @@ function q2(
       e: r`The outermost electron is in the $5s$ orbital: $n=5$, $\ell=0$, $m_\ell=0$, $m_s=\pm\tfrac12$. (L7)${o.Z === 50 ? r` Note: the key uses a $5s$ electron; a $5p$ electron ($n=5,\ \ell=1,\ m_\ell=-1,0,+1$) would be an equally valid description of a valence electron of Sn.` : ''}`,
       ei: r`Elektron terluar berada pada orbital $5s$: $n=5$, $\ell=0$, $m_\ell=0$, $m_s=\pm\tfrac12$. (L7)${o.Z === 50 ? r` Catatan: kunci memakai elektron $5s$; elektron $5p$ ($n=5,\ \ell=1,\ m_\ell=-1,0,+1$) juga merupakan deskripsi elektron valensi Sn yang sah.` : ''}`,
     }),
-    open({
+    short({
       label: `${v}-2c`, pts: 6, lec: 'L7', topic: 'Electron configuration',
       s: r`Give the position (group and period) of X in the periodic table.`,
       si: r`Tentukan posisi (golongan dan periode) unsur tersebut dalam sistem periodik.`,
-      a: r`Period 5, ${o.group}.`,
-      ai: r`Perioda 5, ${o.groupId}.`,
+      blanks: [
+        { label: 'Period', type: 'number', accept: ['5'], tol: { abs: 0.01 } },
+        { label: 'Group', type: 'text', accept: o.grpAcc },
+      ],
+      labels: ['Periode', 'Golongan'],
       h: [r`Period = highest occupied shell $n$.`, r`Group: count valence electrons (outer $s$ + $d$ for transition metals, or outer $s$+$p$ for main group), or count across the row from the first column.`],
       hi: [r`Periode = nomor kulit $n$ tertinggi yang terisi.`, r`Golongan: hitung elektron valensi ($s$ + $d$ untuk logam transisi, $s$ + $p$ untuk golongan utama), atau hitung dari kolom pertama.`],
       w: [r`Highest shell is $n=5$ → period 5.`, r`${o.group === 'group 8 (VIII B)' ? r`Valence electrons $5s^2+4d^6=8$ → group 8 (VIII B).` : o.group === 'group 12 (II B)' ? r`$4d^{10}5s^2$: 12 electrons beyond Kr's $4p$ → group 12 (II B), the $d$ block is filled.` : r`Valence $5s^25p^2$ = 4 electrons → group 14 (IV A).`}`],
@@ -117,6 +135,8 @@ function q2(
       si: r`Tuliskan kemungkinan ion yang terbentuk.`,
       a: r`${o.ions}`,
       ai: r`${o.ions}`,
+      rub: o.ionRub,
+      rubi: o.ionRubId,
       h: [r`Metals form cations by losing electrons. Which electrons leave first?`, r`Remove the outermost ($n=5$) electrons first; a further electron may come from $d$ or $p$.`],
       hi: [r`Logam membentuk kation dengan melepas elektron. Elektron mana yang dilepas lebih dulu?`, r`Lepaskan elektron kulit terluar ($n=5$) dahulu; elektron berikutnya dapat berasal dari $d$ atau $p$.`],
       w: [r`${o.ionsWhy}`],
@@ -154,6 +174,8 @@ function q5(
       label: `${v}-5a`, pts: 4, lec: 'L9', topic: 'Out of scope', d: 2,
       s: o.stemA, si: o.stemAi,
       a: r`$${o.formula}$`, ai: r`$${o.formula}$`,
+      rub: [r`Uses coordination number 6, counting 2 donor sites per bidentate ligand`, r`Chooses the number of each ligand so the total charge of the complex matches the given charge`, r`Writes the formula $${o.formula}$`],
+      rubi: [r`Memakai bilangan koordinasi 6, dengan 2 situs donor untuk tiap ligan bidentat`, r`Menentukan jumlah tiap ligan sehingga muatan total kompleks sesuai yang diberikan`, r`Menulis rumus $${o.formula}$`],
       h: [r`Coordination number 6: count how many donor atoms each ligand provides (bidentate = 2).`, r`Fill the remaining sites with the second ligand, then check that the total charge matches.`],
       hi: [r`Bilangan koordinasi 6: hitung berapa atom donor tiap ligan (bidentat = 2).`, r`Sisa posisi diisi ligan kedua, lalu cek muatan total.`],
       w: [r`${o.why}`],
@@ -165,6 +187,8 @@ function q5(
       label: `${v}-5b`, pts: 4, lec: 'L9', topic: 'Out of scope',
       s: r`Name the complex ion in part (a).`, si: r`Tuliskan nama ion kompleks pada poin a.`,
       a: r`${o.nameEn}`, ai: r`${o.nameId}`,
+      rub: [r`Names the ligands first, in alphabetical order, with the correct multipliers (di-/bis-)`, r`Names the metal last with its oxidation state in Roman numerals, (III)`, r`Gives the full name: ${o.nameEn}`],
+      rubi: [r`Menyebut ligan lebih dulu, urut abjad, dengan awalan jumlah yang benar (di-/bis-)`, r`Menyebut logam terakhir dengan bilangan oksidasi angka Romawi, (III)`, r`Memberi nama lengkap: ${o.nameId}`],
       h: [r`Name the ligands first (with prefixes di-/bis-), in alphabetical order, then the metal.`, r`Put the metal's oxidation state in Roman numerals at the end; for an anionic complex the metal gets the ending "-ate".`],
       hi: [r`Sebut ligan lebih dulu (dengan awalan di-/bis-), urut abjad, kemudian logamnya.`, r`Tuliskan bilangan oksidasi logam dengan angka Romawi di akhir; untuk kompleks anion logam berakhiran "-at".`],
       w: [r`Oxidation state of the metal is +3 (given).`, r`Ligands in alphabetical order, with multipliers; then the metal name and (III).`, r`Name: ${o.nameEn}.`],
@@ -177,6 +201,8 @@ function q5(
       s: r`Draw the 2 possible isomeric structures of the complex ion in part (a). (Describe them in words.)`,
       si: r`Gambarkan 2 struktur isomer yang mungkin pada ion kompleks di poin a.`,
       a: r`${o.iso}`, ai: r`${o.isoId}`,
+      rub: [r`Both structures are octahedral with two bidentate ligands, each spanning two adjacent sites`, r`trans isomer: the two monodentate ligands on opposite (axial, 180°) positions`, r`cis isomer: the two monodentate ligands adjacent (90°)`],
+      rubi: [r`Kedua struktur oktahedral dengan dua ligan bidentat, masing-masing menempati dua posisi bersebelahan`, r`Isomer trans: dua ligan monodentat berseberangan (aksial, 180°)`, r`Isomer cis: dua ligan monodentat bersebelahan (90°)`],
       h: [r`The complex is octahedral, $\text{M}(\text{AA})_2\text{X}_2$. Where can the two monodentate ligands X sit relative to each other?`, r`Place them 180° apart for one isomer, and 90° apart for the other.`],
       hi: [r`Kompleks berbentuk oktahedral, $\text{M}(\text{AA})_2\text{X}_2$. Di mana dua ligan monodentat X dapat berada satu terhadap yang lain?`, r`Letakkan pada 180° untuk satu isomer, dan 90° untuk isomer lainnya.`],
       w: [r`Octahedral geometry, two chelating ligands each spanning two adjacent sites.`, r`trans: the two X ligands on opposite (axial) positions; the two chelates lie in the equatorial plane.`, r`cis: the two X ligands adjacent (90°).`],
@@ -188,20 +214,30 @@ function q5(
 }
 
 /* ---------- MO part (diatomic with 10 valence electrons) ---------- */
-function mo(v: string, sp: string, spTxt: string, atoms: string, atomsId: string, extra: string, extraId: string): Question[] {
+function mo(v: string, sp: string, spTxt: string, species: string, atoms: string, atomsId: string, extra: string, extraId: string): Question[] {
   return [
-    open({
-      label: `${v}-4e(i)`, pts: 4, lec: 'L10', topic: 'MO theory', d: 2,
-      s: r`Draw the molecular-orbital diagram of ${spTxt} on the template (describe it by giving the order of MOs and their occupancy), and give the bond order. ${atoms}`,
-      si: r`Gambarkan diagram orbital molekul ${spTxt} pada template yang disediakan.`,
-      a: r`10 valence electrons: $(\sigma_{2s})^2(\sigma^*_{2s})^2(\pi_{2p_x})^2(\pi_{2p_y})^2(\sigma_{2p_z})^2$; all bonding/antibonding levels above are empty. Bond order $=(8-2)/2=3$.`,
-      ai: r`10 elektron valensi: $(\sigma_{2s})^2(\sigma^*_{2s})^2(\pi_{2p_x})^2(\pi_{2p_y})^2(\sigma_{2p_z})^2$; orbital di atasnya kosong. Orde ikatan $=(8-2)/2=3$.`,
-      h: [r`Count the total valence electrons first.`, r`For this diatomic the order is $\sigma_{2s}<\sigma^*_{2s}<\pi_{2p}<\sigma_{2p}<\pi^*_{2p}<\sigma^*_{2p}$ (as on the template). Fill from the bottom, pairing in each degenerate set only after the set is half full.`],
-      hi: [r`Hitung dulu jumlah elektron valensi.`, r`Urutan untuk diatomik ini: $\sigma_{2s}<\sigma^*_{2s}<\pi_{2p}<\sigma_{2p}<\pi^*_{2p}<\sigma^*_{2p}$ (seperti pada template). Isi dari bawah; pada orbital setingkat, berpasangan setelah semuanya terisi satu.`],
+    wid({
+      label: `${v}-4e(i)`, pts: 2, lec: 'L10', topic: 'MO theory', d: 2,
+      widget: 'mo', task: { species },
+      s: r`Build the molecular-orbital diagram of ${spTxt} in the workbench (fill the MOs with its valence electrons in the correct order). ${atoms}`,
+      si: r`Gambarkan diagram orbital molekul ${spTxt} pada workbench (isi orbital molekul dengan elektron valensinya menurut urutan yang benar). ${atomsId}`,
+      h: [r`Count the total valence electrons first.`, r`For this diatomic the order is $\sigma_{2s}<\sigma^*_{2s}<\pi_{2p}<\sigma_{2p}<\pi^*_{2p}<\sigma^*_{2p}$. Fill from the bottom, pairing in each degenerate set only after the set is half full.`],
+      hi: [r`Hitung dulu jumlah elektron valensi.`, r`Urutan untuk diatomik ini: $\sigma_{2s}<\sigma^*_{2s}<\pi_{2p}<\sigma_{2p}<\pi^*_{2p}<\sigma^*_{2p}$. Isi dari bawah; pada orbital setingkat, berpasangan setelah semuanya terisi satu.`],
       w: [r`${extra}`, r`Fill: $\sigma_{2s}^2\ \sigma^{*2}_{2s}\ \pi_{2p_x}^2\ \pi_{2p_y}^2\ \sigma_{2p_z}^2$ (10 electrons).`, r`Bonding electrons $=8$, antibonding $=2$: bond order $=\tfrac{8-2}{2}=3$.`],
       wi: [r`${extraId}`, r`Isi: $\sigma_{2s}^2\ \sigma^{*2}_{2s}\ \pi_{2p_x}^2\ \pi_{2p_y}^2\ \sigma_{2p_z}^2$ (10 elektron).`, r`Elektron ikatan $=8$, anti-ikatan $=2$: orde ikatan $=\tfrac{8-2}{2}=3$.`],
       e: r`${extra} The key's diagram places $\pi_{2p}$ below $\sigma_{2p}$ and fills: $\sigma_{2s}^2\sigma^{*2}_{2s}\pi_{2p}^4\sigma_{2p}^2$; $\pi^*$ and $\sigma^*_{2p}$ are empty. Bond order $=(8-2)/2=3$ (triple bond). (L10, MO theory)`,
       ei: r`${extraId} Diagram pada kunci menempatkan $\pi_{2p}$ di bawah $\sigma_{2p}$ dan mengisi: $\sigma_{2s}^2\sigma^{*2}_{2s}\pi_{2p}^4\sigma_{2p}^2$; $\pi^*$ dan $\sigma^*_{2p}$ kosong. Orde ikatan $=(8-2)/2=3$ (ikatan rangkap tiga). (L10, teori MO)`,
+    }),
+    num({
+      label: `${v}-4e(i)b`, pts: 2, lec: 'L10', topic: 'MO theory', a: 3, tol: { abs: 0.01 },
+      s: r`Give the bond order of ${spTxt} from your MO diagram.`,
+      si: r`Tentukan orde ikatan ${spTxt} dari diagram orbital molekul Anda.`,
+      h: [r`Bond order $=\tfrac12(\text{bonding e}^- - \text{antibonding e}^-)$.`],
+      hi: [r`Orde ikatan $=\tfrac12(\text{e}^-\text{ ikatan} - \text{e}^-\text{ anti-ikatan})$.`],
+      w: [r`Bonding electrons: $\sigma_{2s}^2+\pi_{2p}^4+\sigma_{2p}^2=8$; antibonding: $\sigma^{*2}_{2s}=2$.`, r`Bond order $=\tfrac{8-2}{2}=3$.`],
+      wi: [r`Elektron ikatan: $\sigma_{2s}^2+\pi_{2p}^4+\sigma_{2p}^2=8$; anti-ikatan: $\sigma^{*2}_{2s}=2$.`, r`Orde ikatan $=\tfrac{8-2}{2}=3$.`],
+      e: r`Bonding electrons $=8$, antibonding $=2$: bond order $=(8-2)/2=\mathbf{3}$ (triple bond). (L10, MO theory)`,
+      ei: r`Elektron ikatan $=8$, anti-ikatan $=2$: orde ikatan $=(8-2)/2=\mathbf{3}$ (ikatan rangkap tiga). (L10, teori MO)`,
     }),
     mcq({
       label: `${v}-4e(ii)`, pts: 4, lec: 'L10', topic: 'MO theory',
@@ -271,6 +307,10 @@ const A: PastProblem[] = [
       cfg: r`[\text{Kr}]4d^{6}5s^{2}`, cfgFull: r`1s^22s^22p^63s^23p^63d^{10}4s^24p^64d^65s^2`,
       fill: r`$44-36=8$ electrons go beyond the Kr core.`, fillId: r`$44-36=8$ elektron berada di luar inti Kr.`,
       group: 'group 8 (VIII B)', groupId: 'Golongan 8 atau VIII B',
+      cfgAcc: ['[Kr]4d6 5s2', '[Kr]4d7 5s1'],
+      grpAcc: ['8', 'VIII B', 'VIIIB', '8B', 'VIII', 'group 8', 'golongan 8', 'golongan VIII B'],
+      ionRub: [r`States that X²⁺ can form (the two 5s electrons are lost)`, r`States that X³⁺ can form (one 4d electron is lost as well)`],
+      ionRubId: [r`Menyebut X²⁺ dapat terbentuk (dua elektron 5s dilepas)`, r`Menyebut X³⁺ dapat terbentuk (satu elektron 4d ikut dilepas)`],
       ions: r`$\text{X}^{2+}$ and $\text{X}^{3+}$`,
       ionsWhy: r`The two $5s$ electrons are lost first → $\text{X}^{2+}$ ($[\text{Kr}]4d^6$); one $4d$ electron can go as well → $\text{X}^{3+}$ ($[\text{Kr}]4d^5$). Both $\text{X}^{2+}$ and $\text{X}^{3+}$ are accepted.`,
       ionsWhyId: r`Dua elektron $5s$ lepas lebih dulu → $\text{X}^{2+}$ ($[\text{Kr}]4d^6$); satu elektron $4d$ dapat ikut lepas → $\text{X}^{3+}$ ($[\text{Kr}]4d^5$). $\text{X}^{2+}$ dan $\text{X}^{3+}$ diterima.`,
@@ -289,6 +329,8 @@ const A: PastProblem[] = [
         si: r`Gambarkan struktur Lewis dari molekul P₂O₅ (atom P tidak langsung terikat pada atom P lainnya, molekul bersifat simetris dan muatan formal masing-masing atom adalah nol).`,
         a: r`O=P(=O)–O–P(=O)=O: a bridging O bonded by single bonds to two P atoms; each P also carries two terminal O atoms by double bonds (P has 5 bonds, an expanded octet). Lone pairs: 2 on each O (4 terminal O + 1 bridging O).`,
         ai: r`O=P(=O)–O–P(=O)=O: satu O penghubung berikatan tunggal dengan dua atom P; tiap P juga mengikat dua O terminal dengan ikatan rangkap dua (P punya 5 ikatan, oktet diperluas). Pasangan bebas: 2 pada tiap O (4 O terminal + 1 O jembatan).`,
+        rub: [r`Counts 40 valence electrons`, r`Skeleton O₂P–O–PO₂: one bridging O between the two P atoms (no P–P bond), two terminal O on each P`, r`Each terminal O is double-bonded to P; the bridging O has two single bonds`, r`All formal charges are zero (each P has 5 bonds, expanded octet; 2 lone pairs on each of the 5 O)`],
+        rubi: [r`Menghitung 40 elektron valensi`, r`Kerangka O₂P–O–PO₂: satu O jembatan di antara dua P (tanpa ikatan P–P), dua O terminal pada tiap P`, r`Tiap O terminal berikatan rangkap dua dengan P; O jembatan punya dua ikatan tunggal`, r`Semua muatan formal nol (tiap P punya 5 ikatan, oktet diperluas; 2 pasangan bebas pada tiap dari 5 O)`],
         h: [r`Count the total valence electrons: $2(5)+5(6)$.`, r`The skeleton is P–O–P with two more O on each P. Which bond type gives each atom formal charge 0?`, r`O needs 2 bonds for FC = 0, so the terminal O's must be double-bonded to P.`],
         hi: [r`Hitung total elektron valensi: $2(5)+5(6)$.`, r`Kerangka: P–O–P dengan dua O tambahan pada tiap P. Jenis ikatan apa yang membuat muatan formal 0?`, r`O perlu 2 ikatan agar FC = 0, jadi O terminal berikatan rangkap dua dengan P.`],
         w: [r`Valence electrons: $2(5)+5(6)=40$.`, r`Skeleton: O₂P–O–PO₂ (bridging O in the middle, two terminal O on each P).`, r`Terminal O: double bond to P (FC = 6−(4+2) = 0); bridging O: two single bonds (FC = 0); P: 5 bonds (FC = 5−5 = 0).`, r`Electron count: 4 P=O ($4\times4=16$ e⁻) + 2 P–O ($2\times2=4$ e⁻) = 20 bonding e⁻; 5 O × 2 lone pairs = 20 e⁻; total 40 e⁻. ✓`],
@@ -296,12 +338,10 @@ const A: PastProblem[] = [
         e: r`Total valence electrons $=2(5)+5(6)=40$. Skeleton O–P(–O)–O–P(–O)–O, i.e. P–O–P with two terminal O on each P. To make every formal charge zero each terminal O forms a double bond to P ($\text{FC}_O=6-4-2=0$) and the bridging O has two single bonds ($6-4-2=0$); each P then has 5 bonds ($\text{FC}_P=5-5=0$, expanded octet, allowed for period 3). Electron count: 4 P=O ($4\times4=16$ e⁻) + 2 P–O ($2\times2=4$ e⁻) $=20$ bonding e⁻, plus 2 lone pairs on each of the 5 O atoms (20 e⁻) $=40$ e⁻. (L9, Lewis structures & formal charge)`,
         ei: r`Total elektron valensi $=2(5)+5(6)=40$. Kerangka O–P(–O)–O–P(–O)–O, yaitu P–O–P dengan dua O terminal pada tiap P. Agar semua muatan formal nol, tiap O terminal berikatan rangkap dua dengan P ($\text{FC}_O=6-4-2=0$) dan O jembatan punya dua ikatan tunggal ($6-4-2=0$); tiap P punya 5 ikatan ($\text{FC}_P=5-5=0$, oktet diperluas, boleh untuk periode 3). Ikatan memakai 20 e⁻ dan 5 atom O membawa 2 pasangan bebas (20 e⁻): total 40. (L9, struktur Lewis & muatan formal)`,
       }),
-      open({
-        label: 'A-3b', pts: 6, lec: 'L9', topic: 'Resonance & delocalisation', d: 2,
+      wid({
+        label: 'A-3b', pts: 6, lec: 'L9', topic: 'Resonance & delocalisation', d: 2, widget: 'lewis', task: { species: 'PO4^3-', resonance: true },
         s: r`Draw 2 possible resonance structures of the $\text{PO}_4^{3-}$ ion (the formal charge of P is zero).`,
         si: r`Gambarkan 2 struktur resonansi yang mungkin dari ion $\text{PO}_4^{3-}$ (muatan formal P adalah nol).`,
-        a: r`P in the centre with one P=O double bond and three P–O⁻ single bonds (each O⁻ has 3 lone pairs, the =O has 2). Second structure: the double bond is on a different O (any of the four O's; the 4 structures are equivalent).`,
-        ai: r`P di tengah dengan satu ikatan rangkap dua P=O dan tiga ikatan tunggal P–O⁻ (tiap O⁻ punya 3 pasangan bebas, =O punya 2). Struktur kedua: ikatan rangkap dua berada pada O lain (empat struktur ekuivalen).`,
         h: [r`Total valence electrons: $5+4(6)+3$.`, r`For $\text{FC}_P=0$, P needs 5 bonds.`, r`That means one P=O double bond; move it to another O for the second structure.`],
         hi: [r`Total elektron valensi: $5+4(6)+3$.`, r`Agar $\text{FC}_P=0$, P harus punya 5 ikatan.`, r`Artinya ada satu ikatan rangkap dua P=O; pindahkan ke O lain untuk struktur kedua.`],
         w: [r`Valence electrons $=5+24+3=32$.`, r`P with 5 bonds ($\text{FC}_P=0$): one P=O and three P–O⁻; the three singly bonded O carry −1 each (total −3 ✓).`, r`Move the double bond to another oxygen to obtain the second resonance form; the charges shift accordingly.`],
@@ -371,8 +411,9 @@ const A: PastProblem[] = [
         e: r`Atom 3 has four σ bonds (C, C, H, H), no π bonds: four domains, tetrahedral, $\mathbf{sp^3}$. (L10)`,
         ei: r`Atom 3 punya empat ikatan σ (C, C, H, H), tanpa ikatan π: empat domain, tetrahedral, $\mathbf{sp^3}$. (L10)`,
       }),
-      open({
-        label: 'A-4c', pts: 4, lec: 'L10', topic: 'VSEPR shapes', a: r`About $104.5^\circ$ (accepted: about $109^\circ$).`, ai: r`Sekitar $104{,}5^\circ$ (atau sekitar $109^\circ$ diterima).`,
+      short({
+        label: 'A-4c', pts: 4, lec: 'L10', topic: 'VSEPR shapes',
+        blanks: [{ label: 'Bond angle', type: 'number', accept: ['104.5'], tol: { abs: 5.1 }, unit: '°' }], labels: ['Sudut ikatan C–O–C'],
         s: r`Give the C–O–C bond angle in ethyl cyanoacetate.`,
         si: r`Tentukan nilai sudut ikatan C-O-C pada molekul etil sianoasetat di atas.`,
         h: [r`Count the electron domains around the central oxygen (atom 5), including lone pairs.`, r`Lone pairs squeeze the bond angle slightly below the ideal value.`],
@@ -382,8 +423,9 @@ const A: PastProblem[] = [
         e: r`The ester oxygen has 2 bonded atoms and 2 lone pairs ($\text{AX}_2\text{E}_2$): bent, with the angle near $104.5^\circ$ (ideal tetrahedral $109.5^\circ$ reduced by lone-pair repulsion). The key accepts "about 109° or 104.5°". (L10, VSEPR)`,
         ei: r`Oksigen ester punya 2 atom terikat dan 2 pasangan bebas ($\text{AX}_2\text{E}_2$): bengkok, sudut sekitar $104{,}5^\circ$ (tetrahedral ideal $109{,}5^\circ$ berkurang akibat tolakan pasangan bebas). Kunci menerima "sekitar 109° atau 104,5°". (L10, VSEPR)`,
       }),
-      open({
-        label: 'A-4d', pts: 4, lec: 'L10', topic: 'VSEPR shapes', a: r`Trigonal planar.`, ai: r`Segitiga planar.`,
+      short({
+        label: 'A-4d', pts: 4, lec: 'L10', topic: 'VSEPR shapes',
+        blanks: [{ label: 'Shape', type: 'text', accept: ['trigonal planar', 'planar trigonal', 'triangular planar', 'trigonal flat', 'segitiga planar', 'segitiga datar', 'planar segitiga', 'trigonal datar'] }], labels: ['Bentuk'],
         s: r`Give the geometry (shape) around atom no. 4 (the carbonyl carbon).`,
         si: r`Tentukan bentuk geometri atom nomor 4.`,
         h: [r`Count the electron domains around atom 4 (a double bond counts as one).`, r`With no lone pairs the molecular shape equals the electron geometry.`],
@@ -393,7 +435,7 @@ const A: PastProblem[] = [
         e: r`Atom 4 has three electron domains (C, =O, –O) and no lone pairs: $\text{AX}_3$ → **trigonal planar**, $sp^2$ hybridised. (L10)`,
         ei: r`Atom 4 punya tiga domain elektron (C, =O, –O) tanpa pasangan bebas: $\text{AX}_3$ → **segitiga planar**, terhibridisasi $sp^2$. (L10)`,
       }),
-      ...mo('A', 'CN⁻', r`the cyanide ion $\text{CN}^-$`, r`(Ethyl cyanoacetate can be made from ethyl chloroacetate and cyanide ion, $\text{CN}^-$. The template shows the 2s and 2p levels of atom C (left) and atom N (right) and the MOs of $\text{CN}^-$ in the middle.)`, r`(Etil sianoasetat dapat disintesis dari etil kloroasetat dengan ion sianida. Template menunjukkan tingkat 2s dan 2p atom C (kiri), atom N (kanan) dan orbital molekul $\text{CN}^-$ di tengah.)`,
+      ...mo('A', 'CN⁻', r`the cyanide ion $\text{CN}^-$`, 'CN^-', r`(Ethyl cyanoacetate can be made from ethyl chloroacetate and cyanide ion, $\text{CN}^-$. The template shows the 2s and 2p levels of atom C (left) and atom N (right) and the MOs of $\text{CN}^-$ in the middle.)`, r`(Etil sianoasetat dapat disintesis dari etil kloroasetat dengan ion sianida. Template menunjukkan tingkat 2s dan 2p atom C (kiri), atom N (kanan) dan orbital molekul $\text{CN}^-$ di tengah.)`,
         r`Valence electrons: C (4) + N (5) + 1 (charge) $=10$.`, r`Elektron valensi: C (4) + N (5) + 1 (muatan) $=10$.`),
     ],
   },
@@ -457,6 +499,10 @@ const B_: PastProblem[] = [
       cfg: r`[\text{Kr}]4d^{10}5s^{2}`, cfgFull: r`1s^22s^22p^63s^23p^64s^23d^{10}4p^65s^24d^{10}`,
       fill: r`$48-36=12$ electrons go beyond the Kr core.`, fillId: r`$48-36=12$ elektron berada di luar inti Kr.`,
       group: 'group 12 (II B)', groupId: 'Golongan 12 atau II B',
+      cfgAcc: ['[Kr]4d10 5s2'],
+      grpAcc: ['12', 'II B', 'IIB', '2B', 'XII', 'group 12', 'golongan 12', 'golongan II B'],
+      ionRub: [r`States that X²⁺ is the ion formed (the two 5s electrons are lost)`, r`Notes that the filled 4d¹⁰ subshell is kept, so no higher charge forms`],
+      ionRubId: [r`Menyebut ion yang terbentuk adalah X²⁺ (dua elektron 5s dilepas)`, r`Menyatakan subkulit 4d¹⁰ penuh tetap, sehingga tidak ada muatan lebih tinggi`],
       ions: r`$\text{X}^{2+}$`,
       ionsWhy: r`The two $5s$ electrons are lost, leaving the stable filled $4d^{10}$ subshell: $\text{X}^{2+}=[\text{Kr}]4d^{10}$. Removing a $4d$ electron costs far too much energy, so only $\text{X}^{2+}$ forms.`,
       ionsWhyId: r`Dua elektron $5s$ dilepas, meninggalkan subkulit $4d^{10}$ penuh yang stabil: $\text{X}^{2+}=[\text{Kr}]4d^{10}$. Melepas elektron $4d$ butuh energi terlalu besar, sehingga hanya $\text{X}^{2+}$ yang terbentuk.`,
@@ -473,6 +519,8 @@ const B_: PastProblem[] = [
         si: r`Gambarkan struktur Lewis paling stabil untuk molekul P₂O₃ (atom P tidak langsung terikat pada atom P lainnya).`,
         a: r`O=P–O–P=O: a bridging O single-bonded to two P; each P has one terminal =O (double bond) and one lone pair. Lone pairs: 2 on each O (3 O) and 1 on each P.`,
         ai: r`O=P–O–P=O: satu O jembatan berikatan tunggal dengan dua P; tiap P punya satu =O terminal (ikatan rangkap dua) dan satu pasangan bebas. Pasangan bebas: 2 pada tiap O (3 O) dan 1 pada tiap P.`,
+        rub: [r`Counts 28 valence electrons`, r`Skeleton O–P–O–P–O with a bridging O and no P–P bond`, r`Terminal O double-bonded to P; bridging O single-bonded to both P`, r`Each P has 3 bonds and 1 lone pair; all formal charges are zero`],
+        rubi: [r`Menghitung 28 elektron valensi`, r`Kerangka O–P–O–P–O dengan O jembatan dan tanpa ikatan P–P`, r`O terminal berikatan rangkap dua dengan P; O jembatan berikatan tunggal dengan kedua P`, r`Tiap P punya 3 ikatan dan 1 pasangan bebas; semua muatan formal nol`],
         h: [r`Total valence electrons: $2(5)+3(6)$.`, r`Skeleton P–O–P with one terminal O on each P. Choose the bonds so that all formal charges are 0.`, r`Each P has 3 bonds + 1 lone pair for FC = 0.`],
         hi: [r`Total elektron valensi: $2(5)+3(6)$.`, r`Kerangka P–O–P dengan satu O terminal pada tiap P. Pilih ikatan agar semua muatan formal 0.`, r`Tiap P: 3 ikatan + 1 pasangan bebas untuk FC = 0.`],
         w: [r`Valence electrons $=10+18=28$.`, r`Skeleton O–P–O–P–O. Terminal O: double bond to P (FC 0); bridging O: two single bonds (FC 0).`, r`P: 3 bonds + 1 lone pair (FC $=5-3-2=0$).`, r`Electron count: bonds 6 pairs (12 e⁻) + lone pairs 8 (2 on each O ×3 = 6, plus 1 on each P = 2) = 16 e⁻ → 28. ✓`],
@@ -486,6 +534,8 @@ const B_: PastProblem[] = [
         si: r`Gambarkan struktur Lewis dari ion $\text{PO}_3^{3-}$ (muatan formal P adalah nol).`,
         a: r`P at the centre with three single P–O⁻ bonds and one lone pair on P; each O has 3 lone pairs and a formal charge of −1 (total −3).`,
         ai: r`P di tengah dengan tiga ikatan tunggal P–O⁻ dan satu pasangan bebas pada P; tiap O punya 3 pasangan bebas dan muatan formal −1 (total −3).`,
+        rub: [r`Counts 26 valence electrons`, r`P in the centre with three P–O single bonds`, r`Each O has 3 lone pairs (formal charge −1); P has one lone pair (formal charge 0)`, r`Total charge is −3 (pyramidal, like NH₃)`],
+        rubi: [r`Menghitung 26 elektron valensi`, r`P di tengah dengan tiga ikatan tunggal P–O`, r`Tiap O punya 3 pasangan bebas (muatan formal −1); P punya satu pasangan bebas (muatan formal 0)`, r`Muatan total −3 (piramida, seperti NH₃)`],
         h: [r`Total valence electrons: $5+3(6)+3$.`, r`With $\text{FC}_P=0$ P has 3 bonds — what must it also have?`],
         hi: [r`Total elektron valensi: $5+3(6)+3$.`, r`Dengan $\text{FC}_P=0$ P punya 3 ikatan — apa lagi yang harus dimilikinya?`],
         w: [r`Valence electrons $=5+18+3=26$.`, r`Three P–O single bonds use 6 e⁻; the three O's complete octets with 3 lone pairs each (18 e⁻).`, r`Remaining $26-6-18=2$ e⁻ → 1 lone pair on P. FC: P $=5-3-2=0$, O $=6-1-6=-1$ each.`],
@@ -555,8 +605,9 @@ const B_: PastProblem[] = [
         e: r`Four σ bonds (O, C, H, H), no π bonds → $\mathbf{sp^3}$. (L10)`,
         ei: r`Empat ikatan σ (O, C, H, H), tanpa ikatan π → $\mathbf{sp^3}$. (L10)`,
       }),
-      open({
-        label: 'B-4c', pts: 4, lec: 'L10', topic: 'VSEPR shapes', a: r`About $109^\circ$ ($109.5^\circ$).`, ai: r`Sekitar $109^\circ$ ($109{,}5^\circ$).`,
+      short({
+        label: 'B-4c', pts: 4, lec: 'L10', topic: 'VSEPR shapes',
+        blanks: [{ label: 'Bond angle', type: 'number', accept: ['109.5'], tol: { abs: 3 }, unit: '°' }], labels: ['Sudut ikatan C–C–C'],
         s: r`Give the value of the C–C–C bond angle in nitroglycerin.`,
         si: r`Tentukan nilai sudut ikatan C-C-C pada molekul nitrogliserin di atas.`,
         h: [r`Which hybridisation do the carbons have?`, r`No lone pairs on carbon: the angle is the ideal tetrahedral one.`],
@@ -566,8 +617,9 @@ const B_: PastProblem[] = [
         e: r`The central carbon is $sp^3$ with four bonded atoms and no lone pairs ($\text{AX}_4$): tetrahedral, $\approx\mathbf{109.5^\circ}$. (L10, VSEPR)`,
         ei: r`Karbon tengah $sp^3$ dengan empat atom terikat dan tanpa pasangan bebas ($\text{AX}_4$): tetrahedral, $\approx\mathbf{109{,}5^\circ}$. (L10, VSEPR)`,
       }),
-      open({
-        label: 'B-4d', pts: 4, lec: 'L10', topic: 'VSEPR shapes', a: r`Bent (V-shaped).`, ai: r`Bengkok (bentuk V).`,
+      short({
+        label: 'B-4d', pts: 4, lec: 'L10', topic: 'VSEPR shapes',
+        blanks: [{ label: 'Shape', type: 'text', accept: ['bent', 'v-shaped', 'v shape', 'angular', 'bengkok', 'bentuk v', 'v', 'menekuk', 'sudut'] }], labels: ['Bentuk'],
         s: r`Give the geometry (shape) around atom no. 5 (the O bonded to the right CH₂ and to N).`,
         si: r`Tentukan bentuk geometri atom nomor 5.`,
         h: [r`Count bonded atoms and lone pairs on atom 5.`, r`Which $\text{AX}_m\text{E}_n$ class is that?`],
@@ -577,7 +629,7 @@ const B_: PastProblem[] = [
         e: r`$\text{AX}_2\text{E}_2$: tetrahedral electron geometry, **bent** (V-shaped) molecular shape, angle ≈ 104.5°. (L10, VSEPR)`,
         ei: r`$\text{AX}_2\text{E}_2$: geometri elektron tetrahedral, bentuk molekul **bengkok** (V), sudut ≈ 104,5°. (L10, VSEPR)`,
       }),
-      ...mo('B', 'N₂', r`$\text{N}_2$`, r`(Nitroglycerin's decomposition gives $\text{N}_2$ gas. The template shows the 2s and 2p levels of the two N atoms and the MOs of $\text{N}_2$ in the middle.)`, r`(Peruraian nitrogliserin menghasilkan gas $\text{N}_2$. Template menunjukkan tingkat 2s dan 2p kedua atom N dan orbital molekul $\text{N}_2$ di tengah.)`,
+      ...mo('B', 'N₂', r`$\text{N}_2$`, 'N2', r`(Nitroglycerin's decomposition gives $\text{N}_2$ gas. The template shows the 2s and 2p levels of the two N atoms and the MOs of $\text{N}_2$ in the middle.)`, r`(Peruraian nitrogliserin menghasilkan gas $\text{N}_2$. Template menunjukkan tingkat 2s dan 2p kedua atom N dan orbital molekul $\text{N}_2$ di tengah.)`,
         r`Valence electrons: $2\times5=10$.`, r`Elektron valensi: $2\times5=10$.`),
     ],
   },
@@ -641,6 +693,10 @@ const C: PastProblem[] = [
       cfg: r`[\text{Kr}]4d^{10}5s^{2}5p^{2}`, cfgFull: r`1s^22s^22p^63s^23p^64s^23d^{10}4p^65s^24d^{10}5p^2`,
       fill: r`$50-36=14$ electrons go beyond the Kr core.`, fillId: r`$50-36=14$ elektron berada di luar inti Kr.`,
       group: 'group 14 (IV A)', groupId: 'Golongan 14 atau IV A',
+      cfgAcc: ['[Kr]4d10 5s2 5p2'],
+      grpAcc: ['14', 'IV A', 'IVA', '4A', 'XIV', 'IV', 'group 14', 'golongan 14', 'golongan IV A'],
+      ionRub: [r`States that X²⁺ can form (the two 5p electrons are lost)`, r`States that X⁴⁺ can form (the 5s electrons are lost as well)`],
+      ionRubId: [r`Menyebut X²⁺ dapat terbentuk (dua elektron 5p dilepas)`, r`Menyebut X⁴⁺ dapat terbentuk (elektron 5s ikut dilepas)`],
       ions: r`$\text{X}^{2+}$ and $\text{X}^{4+}$`,
       ionsWhy: r`Losing the two $5p$ electrons gives $\text{X}^{2+}$ (the "inert-pair" ion, $[\text{Kr}]4d^{10}5s^2$); losing the $5s$ electrons as well gives $\text{X}^{4+}$ ($[\text{Kr}]4d^{10}$). Both $\text{X}^{2+}$ and $\text{X}^{4+}$ are accepted.`,
       ionsWhyId: r`Melepas dua elektron $5p$ memberi $\text{X}^{2+}$ (ion "pasangan inert", $[\text{Kr}]4d^{10}5s^2$); melepas juga elektron $5s$ memberi $\text{X}^{4+}$ ($[\text{Kr}]4d^{10}$). $\text{X}^{2+}$ dan $\text{X}^{4+}$ diterima.`,
@@ -657,6 +713,8 @@ const C: PastProblem[] = [
         si: r`Gambarkan struktur Lewis paling stabil dari molekul $\text{N}_2\text{O}_5$ (atom N tidak langsung terikat pada atom N lainnya).`,
         a: r`$\text{O}_2\text{N–O–NO}_2$: a bridging O with two single bonds to two N; each N has one N=O, one N–O⁻ and the bond to the bridging O (formal charges N⁺, O⁻; molecule neutral). Octets everywhere (N has 4 bonds, no lone pair).`,
         ai: r`$\text{O}_2\text{N–O–NO}_2$: satu O jembatan dengan dua ikatan tunggal ke dua N; tiap N punya satu N=O, satu N–O⁻ dan ikatan ke O jembatan (muatan formal N⁺, O⁻; molekul netral). Semua atom memenuhi oktet (N punya 4 ikatan, tanpa pasangan bebas).`,
+        rub: [r`Counts 40 valence electrons`, r`Skeleton O₂N–O–NO₂ with a bridging O and no N–N bond`, r`Each N has one N=O, one N–O⁻ and one single bond to the bridging O (no expanded octet)`, r`Formal charges: N +1, single-bonded terminal O −1, net charge 0; all octets satisfied`],
+        rubi: [r`Menghitung 40 elektron valensi`, r`Kerangka O₂N–O–NO₂ dengan O jembatan dan tanpa ikatan N–N`, r`Tiap N punya satu N=O, satu N–O⁻ dan satu ikatan tunggal ke O jembatan (tanpa oktet diperluas)`, r`Muatan formal: N +1, O terminal ikatan tunggal −1, muatan total 0; semua oktet terpenuhi`],
         h: [r`Total valence electrons: $2(5)+5(6)$.`, r`Skeleton: N–O–N with two terminal O on each N. N cannot exceed an octet.`, r`Give each N one double bond to a terminal O; the other terminal O carries a negative charge.`],
         hi: [r`Total elektron valensi: $2(5)+5(6)$.`, r`Kerangka: N–O–N dengan dua O terminal pada tiap N. N tidak boleh melebihi oktet.`, r`Beri tiap N satu ikatan rangkap dua ke O terminal; O terminal lainnya bermuatan negatif.`],
         w: [r`Valence electrons: $10+30=40$.`, r`Skeleton O₂N–O–NO₂; each N: bonds to bridging O, one =O, one –O.`, r`Octet at N requires 4 bonds → $\text{FC}_N=+1$; the single-bonded terminal O gets 3 lone pairs → $\text{FC}=-1$ (each N–O⁻ pair of charges cancels the N⁺).`, r`Count: 4 N–O single + 2 N=O = 8 bonding pairs (16 e⁻) + 12 lone pairs (24 e⁻) = 40. ✓`],
@@ -664,12 +722,10 @@ const C: PastProblem[] = [
         e: r`40 valence electrons. Skeleton $\text{O}_2\text{N–O–NO}_2$. Nitrogen (period 2) cannot expand its octet, so each N has one N=O double bond, one N–O⁻ single bond and one single bond to the bridging O (4 bonds → $\text{FC}_N=+1$; the single-bonded terminal O has 3 lone pairs → $\text{FC}_O=-1$; the bridging O has 2 lone pairs, FC 0). Total charge 0. Pairs: 8 bonding (16 e⁻) + 12 lone pairs (24 e⁻) = 40 e⁻. (The hand-drawn key shows O=N(–O)–O–N(=O)–O with the terminal O's carrying lone pairs; the formal charges N⁺/O⁻ complete it.) (L9)`,
         ei: r`40 elektron valensi. Kerangka $\text{O}_2\text{N–O–NO}_2$. Nitrogen (periode 2) tidak dapat memperluas oktet, sehingga tiap N punya satu ikatan rangkap dua N=O, satu ikatan tunggal N–O⁻ dan satu ikatan tunggal ke O jembatan (4 ikatan → $\text{FC}_N=+1$; O terminal ikatan tunggal punya 3 pasangan bebas → $\text{FC}_O=-1$; O jembatan punya 2 pasangan bebas, FC 0). Muatan total 0. Pasangan: 8 ikatan (16 e⁻) + 12 pasangan bebas (24 e⁻) = 40 e⁻. (Gambar tangan pada kunci memperlihatkan O=N(–O)–O–N(=O)–O dengan pasangan bebas pada O terminal; muatan formal N⁺/O⁻ melengkapinya.) (L9)`,
       }),
-      open({
-        label: 'C-3b', pts: 6, lec: 'L9', topic: 'Resonance & delocalisation', d: 2,
+      wid({
+        label: 'C-3b', pts: 6, lec: 'L9', topic: 'Resonance & delocalisation', d: 2, widget: 'lewis', task: { species: 'NO3^-', resonance: true },
         s: r`Draw 2 possible resonance structures of the $\text{NO}_3^-$ ion.`,
         si: r`Gambarkan 2 struktur resonansi yang mungkin dari ion $\text{NO}_3^-$.`,
-        a: r`N in the centre with one N=O double bond and two N–O⁻ single bonds (N⁺ formal charge +1, each O⁻ −1, net −1); the second structure moves the double bond to a different O (three equivalent forms exist).`,
-        ai: r`N di tengah dengan satu ikatan rangkap dua N=O dan dua ikatan tunggal N–O⁻ (muatan formal N +1, tiap O⁻ −1, total −1); struktur kedua memindahkan ikatan rangkap dua ke O lain (ada tiga bentuk ekuivalen).`,
         h: [r`Total valence electrons: $5+3(6)+1$.`, r`Central N has no room for more than an octet: one double bond is needed.`, r`The double bond can sit on any of the three O.`],
         hi: [r`Total elektron valensi: $5+3(6)+1$.`, r`N pusat tidak boleh melebihi oktet: perlu satu ikatan rangkap dua.`, r`Ikatan rangkap dua dapat berada pada salah satu dari tiga O.`],
         w: [r`Valence electrons $=5+18+1=24$.`, r`Draw N surrounded by 3 O, one N=O and two N–O⁻ (octet on all atoms).`, r`Move the double bond to another O for the second structure. Formal charges: N +1, the two single-bonded O −1 each, =O 0.`],
@@ -739,8 +795,9 @@ const C: PastProblem[] = [
         e: r`Atom 2 has three σ bonds and one π bond (C=C): trigonal planar, $\mathbf{sp^2}$. (L10)`,
         ei: r`Atom 2 punya tiga ikatan σ dan satu ikatan π (C=C): segitiga planar, $\mathbf{sp^2}$. (L10)`,
       }),
-      open({
-        label: 'C-4c', pts: 4, lec: 'L10', topic: 'VSEPR shapes', a: r`About $104.5^\circ$ (or about $109^\circ$).`, ai: r`Sekitar $104{,}5^\circ$ (atau sekitar $109^\circ$).`,
+      short({
+        label: 'C-4c', pts: 4, lec: 'L10', topic: 'VSEPR shapes',
+        blanks: [{ label: 'Bond angle', type: 'number', accept: ['104.5'], tol: { abs: 5.1 }, unit: '°' }], labels: ['Sudut ikatan C–O–C'],
         s: r`Give the value of the C–O–C bond angle in furfural.`,
         si: r`Tentukan nilai sudut ikatan C-O-C pada molekul furfural di atas.`,
         h: [r`Count bonded atoms and lone pairs on the ring oxygen.`, r`The ideal angle for four domains is 109.5°; lone pairs reduce it.`],
@@ -750,8 +807,9 @@ const C: PastProblem[] = [
         e: r`The ring oxygen is $\text{AX}_2\text{E}_2$ (bent): $\approx\mathbf{104.5^\circ}$ by VSEPR (the key also accepts about $109^\circ$; in the real five-membered ring it is about $106^\circ$). (L10)`,
         ei: r`Oksigen cincin bertipe $\text{AX}_2\text{E}_2$ (bengkok): $\approx\mathbf{104{,}5^\circ}$ menurut VSEPR (kunci juga menerima sekitar $109^\circ$; pada cincin lima anggota sebenarnya sekitar $106^\circ$). (L10)`,
       }),
-      open({
-        label: 'C-4d', pts: 4, lec: 'L10', topic: 'VSEPR shapes', a: r`Trigonal planar.`, ai: r`Segitiga planar.`,
+      short({
+        label: 'C-4d', pts: 4, lec: 'L10', topic: 'VSEPR shapes',
+        blanks: [{ label: 'Shape', type: 'text', accept: ['trigonal planar', 'planar trigonal', 'triangular planar', 'trigonal flat', 'segitiga planar', 'segitiga datar', 'planar segitiga', 'trigonal datar'] }], labels: ['Bentuk'],
         s: r`Give the geometry (shape) of ring carbon no. 3.`,
         si: r`Tentukan bentuk geometri atom C nomor 3.`,
         h: [r`Count bonded atoms and lone pairs on atom 3.`, r`A double bond counts as one electron domain.`],
@@ -761,7 +819,7 @@ const C: PastProblem[] = [
         e: r`Three domains (C=C, C, H), no lone pairs: $\text{AX}_3$ → **trigonal planar** ($sp^2$). (L10)`,
         ei: r`Tiga domain (C=C, C, H), tanpa pasangan bebas: $\text{AX}_3$ → **segitiga planar** ($sp^2$). (L10)`,
       }),
-      ...mo('C', 'CO', r`$\text{CO}$`, r`(Decarbonylation of furfural with a palladium catalyst gives CO gas and furan. The template shows the 2s and 2p levels of atom C (left) and atom O (right) and the MOs of CO in the middle.)`, r`(Reaksi dekarbonilasi furfural dengan katalis palladium menghasilkan gas CO dan furan. Template menunjukkan tingkat 2s dan 2p atom C (kiri), atom O (kanan) dan orbital molekul CO di tengah.)`,
+      ...mo('C', 'CO', r`$\text{CO}$`, 'CO', r`(Decarbonylation of furfural with a palladium catalyst gives CO gas and furan. The template shows the 2s and 2p levels of atom C (left) and atom O (right) and the MOs of CO in the middle.)`, r`(Reaksi dekarbonilasi furfural dengan katalis palladium menghasilkan gas CO dan furan. Template menunjukkan tingkat 2s dan 2p atom C (kiri), atom O (kanan) dan orbital molekul CO di tengah.)`,
         r`Valence electrons: C (4) + O (6) $=10$ (isoelectronic with $\text{N}_2$ and $\text{CN}^-$).`, r`Elektron valensi: C (4) + O (6) $=10$ (isoelektronik dengan $\text{N}_2$ dan $\text{CN}^-$).`),
     ],
   },

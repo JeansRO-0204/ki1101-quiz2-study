@@ -239,3 +239,45 @@ kbd { font-family: var(--mono); font-size: 10.5px; padding: 0 5px; border: 1px s
 .pp-q .pq-stem { font-size: 15.5px; }
 @media (max-width: 640px) { .pp-part { flex-direction: column; gap: 6px; } .pp-label small { position: static; } }
 .pq-ctx { margin: 0 0 12px; font-size: 14.5px; }
+
+/* ---------- short answers ---------- */
+.pq-blanks { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; }
+.pq-blanks.wide { grid-template-columns: 1fr; }
+.pq-blank { display: grid; gap: 4px; }
+.pq-blank-l { font-size: 12.5px; font-weight: 600; color: #3c3c43; }
+.pq-blank-in { position: relative; display: flex; align-items: center; gap: 6px; }
+.pq-blank-in input { flex: 1; min-width: 0; border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 34px 8px 11px; font-size: 15px; background: #fff; outline: none; transition: border-color .15s, box-shadow .15s; }
+.pq-blank-in input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.pq-blank.scr-on input { border-color: var(--accent); background: rgba(0, 122, 255, .04); }
+.pq-blank.ok input { border-color: #34c759; background: var(--ok-soft); } .pq-blank.err input { border-color: #ff453a; background: var(--err-soft); }
+.pq-blank-in .unit { color: var(--muted); font-size: 13px; }
+.pq-blank-ic { position: absolute; right: 10px; } .pq-blank-in .unit ~ .pq-blank-ic { right: auto; left: calc(100% - 60px); }
+.pq-blank-ic.ok { color: #34c759; } .pq-blank-ic.err { color: #ff453a; }
+.pq-blank-help { font-size: 11.5px; margin: 6px 0 0; }
+.pq-paper-sw { display: flex; justify-content: flex-end; margin: -6px 0 6px; }
+
+/* ---------- ordering ---------- */
+.pq-ord { display: grid; gap: 10px; }
+.pq-ord-ends { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.pq-ord-arrow { flex: 1; height: 2px; background: linear-gradient(90deg, var(--line), var(--accent)); position: relative; border-radius: 2px; }
+.pq-ord-arrow::after { content: ''; position: absolute; right: -2px; top: -4px; border: 5px solid transparent; border-left-color: var(--accent); }
+.pq-ord-seq { list-style: none; margin: 0; padding: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 58px; border-radius: 14px; background: var(--fill-2); border: 1.5px dashed var(--line); }
+.pq-ord-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 12px; border: 1.5px solid var(--line); background: #fff; font-size: 15px; font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, .06); }
+button.pq-ord-chip { cursor: pointer; transition: transform .1s, border-color .15s; } button.pq-ord-chip:hover { border-color: var(--accent); transform: translateY(-1px); }
+.pq-ord-chip.placed { border-color: rgba(0, 122, 255, .45); position: relative; }
+.pq-ord-chip.ok { border-color: #34c759; background: var(--ok-soft); } .pq-ord-chip.err { border-color: #ff453a; background: var(--err-soft); }
+.pq-ord-n { width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 11px; display: grid; place-items: center; }
+.pq-ord-ctl { display: inline-flex; gap: 1px; margin-left: 2px; }
+.pq-ord-ctl button { border: none; background: var(--soft); width: 22px; height: 22px; border-radius: 6px; font-size: 12px; padding: 0; color: #3c3c43; }
+.pq-ord-ctl button:hover:not(:disabled) { background: var(--accent); color: #fff; } .pq-ord-ctl button:disabled { opacity: .3; }
+.pq-ord-sep { position: absolute; right: -11px; color: var(--muted); font-weight: 700; }
+.pq-ord-slot { width: 46px; height: 36px; border-radius: 10px; border: 1.5px dashed var(--line); display: grid; place-items: center; color: var(--muted); font-size: 12px; }
+.pq-ord-pool { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+/* ---------- rubric ---------- */
+.pq-rubric { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin: 10px 0 0; display: grid; gap: 6px; }
+.pq-rubric legend { font-size: 12.5px; font-weight: 600; color: #3c3c43; padding: 0 4px; }
+.pq-rub { display: flex; gap: 10px; align-items: flex-start; padding: 6px 8px; border-radius: 9px; cursor: pointer; font-size: 14px; transition: background .15s; }
+.pq-rub:hover { background: var(--soft); } .pq-rub.on { background: var(--ok-soft); }
+.pq-rub input { margin-top: 3px; accent-color: #34c759; width: 16px; height: 16px; flex: none; }
+.pq-rubric:disabled .pq-rub { cursor: default; }
