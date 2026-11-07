@@ -48,6 +48,9 @@ export const IconPanels = (p: P) => (
   </Svg>
 )
 
+export const IconSidebar = (p: P) => <Svg {...p}><rect x="3.5" y="4.5" width="17" height="15" rx="3" /><path d="M9.5 4.5v15M5.8 8.5h1.6M5.8 11.5h1.6" /></Svg>
+export const IconSlides = (p: P) => <Svg {...p}><rect x="3" y="4" width="18" height="12.5" rx="2.2" /><path d="M12 16.5V20M8.5 20h7" /><path d="m10 8 4.5 2.3L10 12.5Z" fill="currentColor" stroke="none" /></Svg>
+
 /* ---- actions ---- */
 export const IconPlus = (p: P) => <Svg {...p}><path d="M12 5v14M5 12h14" /></Svg>
 export const IconMinus = (p: P) => <Svg {...p}><path d="M5 12h14" /></Svg>

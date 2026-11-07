@@ -48,7 +48,7 @@ export function Formula({ f }: { f: string }) {
 }
 
 /* ---------- slides ---------- */
-const SLIDE_COUNT: Record<LectureId, number> = { L7: 43, L8: 42, L9: 72, L10: 142 }
+export const SLIDE_COUNT: Record<LectureId, number> = { L7: 43, L8: 42, L9: 72, L10: 142 }
 export function slideSrc(l: LectureId, n: number) {
   const pad = String(SLIDE_COUNT[l]).length
   return `slides/${l}/s-${String(n).padStart(pad, '0')}.jpg`

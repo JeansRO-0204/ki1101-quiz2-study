@@ -1,9 +1,10 @@
-import { Suspense, useEffect } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { CONTENT } from '../content'
 import { WIDGET } from '../registry'
 import { LECTURES, type LectureId } from '../types'
-import { Md, SlideRef, openInWorkspace } from '../lib/kit'
-import { IconPopOut, IconSparkles } from '../lib/icons'
+import { Md, SlideRef, openInWorkspace, useLocalState } from '../lib/kit'
+import { IconChevronLeft, IconPopOut, IconSidebar, IconSlides, IconSparkles } from '../lib/icons'
+const SlidesModal = lazy(() => import('./SlidesModal'))
 
 export default function Learn({ lecture, section }: { lecture: LectureId; section?: string }) {
   const L = CONTENT[lecture]
@@ -13,9 +14,25 @@ export default function Learn({ lecture, section }: { lecture: LectureId; sectio
     else document.querySelector('.learn-main')?.scrollTo({ top: 0 })
   }, [lecture, section])
 
+  const [collapsed, setCollapsed] = useLocalState('learn.side.collapsed', false)
+  const [slides, setSlides] = useState(false)
+
   return (
-    <div className="learn">
+    <div className={'learn' + (collapsed ? ' collapsed' : '')}>
+      {collapsed ? (
+        <aside className="learn-rail" aria-label="Lectures">
+          <button className="rail-b" onClick={() => setCollapsed(false)} title="Show sidebar" aria-label="Show sidebar"><IconSidebar size={18} /></button>
+          {LECTURES.map((l) => <a key={l.id} href={`#/learn/${l.id}`} className={'rail-l' + (l.id === lecture ? ' on' : '')} style={{ ['--c' as string]: l.color }} title={l.title}>{l.id.replace('L', '')}</a>)}
+          <span className="grow" />
+          <button className="rail-b" onClick={() => setSlides(true)} title="Lecture slides" aria-label="Lecture slides"><IconSlides size={18} /></button>
+        </aside>
+      ) : (
       <aside className="learn-side">
+        <div className="side-top">
+          <span className="muted side-cap">Lectures</span>
+          <button className="btn ghost sm" onClick={() => setCollapsed(true)} title="Hide sidebar" aria-label="Hide sidebar"><IconChevronLeft size={14} /><IconSidebar size={16} /></button>
+        </div>
+        <div className="side-list">
         {LECTURES.map((l) => (
           <div key={l.id} className={'lec' + (l.id === lecture ? ' on' : '')} style={{ ['--c' as string]: l.color }}>
             <a className="lec-head" href={`#/learn/${l.id}`}><span className="dot" />{l.id.replace('L', '')}. {l.title}</a>
@@ -28,10 +45,16 @@ export default function Learn({ lecture, section }: { lecture: LectureId; sectio
             )}
           </div>
         ))}
+        </div>
+        <div className="side-foot">
+          <button className="btn side-slides" onClick={() => setSlides(true)}><IconSlides size={16} />Lecture slides</button>
+        </div>
       </aside>
+      )}
       <div className="learn-main">
         <nav className="learn-mnav" aria-label="Lectures and sections">
           <div className="learn-mlecs">{LECTURES.map((l) => <a key={l.id} href={`#/learn/${l.id}`} className={l.id === lecture ? 'on' : ''} style={{ ['--c' as string]: l.color }}>{l.id.replace('L', '')}. {l.title}</a>)}</div>
+          <button className="btn sm" onClick={() => setSlides(true)}><IconSlides size={14} />Slides</button>
           <select className="field" value={section ?? ''} onChange={(e) => { location.hash = `#/learn/${lecture}${e.target.value ? '/' + e.target.value : ''}` }} aria-label="Jump to section">
             <option value="">Jump to section…</option>
             {L.sections.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
@@ -65,6 +88,7 @@ export default function Learn({ lecture, section }: { lecture: LectureId; sectio
           </article>
         ))}
       </div>
+      {slides && <Suspense fallback={null}><SlidesModal initial={lecture} onClose={() => setSlides(false)} /></Suspense>}
     </div>
   )
 }
