@@ -8,6 +8,9 @@ import katex from 'katex'
 import type { LectureId, Mode } from '../types'
 import { IconCheck, IconChevronLeft, IconChevronRight, LEVEL_ICON } from './icons'
 
+/** Id of the Workspace panel a component is rendered in (null outside the Workspace). */
+export const PanelIdCtx = createContext<string | null>(null)
+
 /* ---------- persistence ---------- */
 export function useLocalState<T>(key: string, init: T): [T, (v: T | ((p: T) => T)) => void] {
   const [v, setV] = useState<T>(() => {

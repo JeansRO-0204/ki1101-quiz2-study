@@ -1,6 +1,6 @@
 // Past quizzes: list of past KI1101 Quiz 2 papers → full paper view, every part answerable with progressive hints and worked solutions.
 import { useState } from 'react'
-import { Md } from '../lib/kit'
+import { Md, openInWorkspace } from '../lib/kit'
 import type { PastPaper, Question } from '../types'
 import { PAST_FIGURES, PAST_PAPERS } from './bank'
 import { PastFigures } from './PastFigures'
@@ -8,7 +8,7 @@ import { LangSwitch, useLang } from './Hints'
 import QuestionView, { KeysCtx, type Outcome } from './QuestionView'
 import { logAttempt, usePStore } from './store'
 import { go, setPreset } from './ui'
-import { AppIcon, IconChevronLeft, IconChevronRight, IconFlag, IconInfoFill } from '../lib/icons'
+import { AppIcon, IconPopOut, IconChevronLeft, IconChevronRight, IconFlag, IconInfoFill } from '../lib/icons'
 
 const T = {
   en: { title: 'Past quizzes', sub: 'Previous years’ KI1101 Quiz 2 papers with hints and worked solutions. Indonesian originals are kept: switch with EN / ID.', problems: 'problems', parts: 'parts', min: 'min', back: 'Past quizzes', constants: 'Constants given on the paper', soal: 'Problem', pts: 'pts', oos: 'Outside L7–L10: not on your quiz', none: 'No past papers loaded yet.', done: 'answered', quiz: 'Quiz me on all past questions' },
@@ -59,7 +59,7 @@ function PaperList() {
   )
 }
 
-function Paper({ paper }: { paper: PastPaper }) {
+export function Paper({ paper, embedded }: { paper: PastPaper; embedded?: boolean }) {
   const [lang, setLang] = useLang()
   const t = T[lang]
   const [out, setOut] = useState<Record<string, Outcome>>({})
@@ -72,8 +72,8 @@ function Paper({ paper }: { paper: PastPaper }) {
   const answered = parts.filter((q) => out[q.id]).length
   return (
     <KeysCtx.Provider value={false}>
-    <div className="pr-page pp">
-      <button className="btn ghost sm" onClick={() => go('past')}><IconChevronLeft size={14} />{t.back}</button>
+    <div className={'pr-page pp' + (embedded ? ' pp-embed' : '')}>
+      {!embedded && <button className="btn ghost sm" onClick={() => go('past')}><IconChevronLeft size={14} />{t.back}</button>}
       <div className="pp-head">
         <div>
           <h2>{lang === 'id' ? paper.titleId : paper.title}</h2>
@@ -81,6 +81,7 @@ function Paper({ paper }: { paper: PastPaper }) {
         </div>
         <div className="row">
           {answered > 0 && <span className="chip">{answered}/{parts.length} · {Math.round((got / answered) * 100)}%</span>}
+          {!embedded && <button className="btn sm" onClick={() => openInWorkspace('past:' + paper.id)} title="Open this paper as a Workspace panel, next to the periodic table, notepad…"><IconPopOut size={14} />Workspace</button>}
           <LangSwitch lang={lang} setLang={setLang} />
         </div>
       </div>

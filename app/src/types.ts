@@ -38,7 +38,7 @@ export interface WidgetProps<T = unknown> {
 export interface WidgetDef {
   id: string
   title: string
-  lecture: LectureId | 'tool'
+  lecture: LectureId | 'tool' | 'quiz'
   blurb: string
   component: LazyExoticComponent<ComponentType<WidgetProps<any>>> | ComponentType<WidgetProps<any>>
   /** default Workspace panel size in px */

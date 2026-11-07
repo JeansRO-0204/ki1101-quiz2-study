@@ -1,6 +1,7 @@
 // Workspace: a free-form pannable/zoomable canvas of window-like widget panels. Owned by the workspace agent.
 import { Component, Suspense, memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { WIDGET, WIDGETS } from '../registry'
+import { PanelIdCtx } from '../lib/kit'
 import { LECTURES } from '../types'
 import { AppIcon, IconChevronDown, IconFit, IconLayers, IconMagnet, IconMaximize, IconMinus, IconPanels, IconPlus, IconReset, IconRestore, IconX } from '../lib/icons'
 import './workspace.css'
@@ -86,10 +87,10 @@ const PanelBody = memo(function PanelBody({ widgetId }: { widgetId: string }) {
   const def = WIDGET.get(widgetId)
   if (!def) return <div className="ws-err"><b>Unknown widget</b><code>{widgetId}</code></div>
   const C = def.component
-  return <Boundary><Suspense fallback={<div className="ws-loading"><i /><i /><i /></div>}><C compact /></Suspense></Boundary>
+  return <Boundary><PanelIdCtx.Provider value={widgetId}><Suspense fallback={<div className="ws-loading"><i /><i /><i /></div>}><C compact /></Suspense></PanelIdCtx.Provider></Boundary>
 })
 
-const lectureColor = (l: string) => LECTURES.find((x) => x.id === l)?.color ?? '#475569'
+const lectureColor = (l: string) => (l === 'quiz' ? '#5e5ce6' : LECTURES.find((x) => x.id === l)?.color ?? '#475569')
 
 /* ---------- panel window ---------- */
 interface PanelProps {
@@ -156,10 +157,10 @@ function Launcher({ onPick, onClose }: { onPick: (id: string) => void; onClose: 
   useEffect(() => { ref.current?.focus() }, [])
   const groups = useMemo(() => {
     const t = q.trim().toLowerCase()
-    const order: (string)[] = ['L7', 'L8', 'L9', 'L10', 'tool']
+    const order: (string)[] = ['quiz', 'L7', 'L8', 'L9', 'L10', 'tool']
     return order.map((g) => ({
       g,
-      title: g === 'tool' ? 'Tools' : `${g} · ${LECTURES.find((l) => l.id === g)?.title}`,
+      title: g === 'tool' ? 'Tools' : g === 'quiz' ? 'Quizzes & past papers' : `${g} · ${LECTURES.find((l) => l.id === g)?.title}`,
       items: WIDGETS.filter((w) => w.lecture === g && (!t || (w.title + ' ' + w.blurb + ' ' + w.id).toLowerCase().includes(t))),
     })).filter((x) => x.items.length)
   }, [q])
