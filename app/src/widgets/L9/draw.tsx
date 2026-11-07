@@ -79,10 +79,12 @@ export function autoLayout(n: number, edges: [number, number][], root: number | 
   }
   const t = treeLayout(n, edges, root)
   const reached = t.map((p, i) => (p ? i : -1)).filter((i) => i >= 0)
-  const fitted = fitLayout(reached.map((i) => t[i]!), VW, VH - 70, 44)
-  const out: Pt[] = new Array(n)
-  reached.forEach((i, k) => { out[i] = [fitted[k][0], fitted[k][1] - 12] })
   const lost = Array.from({ length: n }, (_, i) => i).filter((i) => !t[i])
+  // only reserve the bottom strip when there are unattached atoms to put in it; otherwise centre in the whole canvas
+  const h = lost.length ? VH - 70 : VH
+  const fitted = fitLayout(reached.map((i) => t[i]!), VW, h, 44)
+  const out: Pt[] = new Array(n)
+  reached.forEach((i, k) => { out[i] = [fitted[k][0], fitted[k][1] - (lost.length ? 12 : 0)] })
   lost.forEach((i, k) => { out[i] = [VW / 2 + (k - (lost.length - 1) / 2) * 58, VH - 28] })
   return out
 }
