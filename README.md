@@ -1,0 +1,30 @@
+# KI1101 Quiz 2 study site (L7–L10: atoms & bonding)
+
+## Run
+```bash
+cd app && npm install && npm run dev   # http://localhost:5180
+```
+Progress (quiz history, flashcards, workspace layout, notes) is saved in your browser's localStorage. Use Practice → Progress → Export to back it up.
+
+## Sections
+- **Materials**: 40 sections across L7–L10, with slide citations (click a chip to open the slide) and 23 embedded interactive workbenches. Learn mode checks each step with hints; Test mode stays silent until the final Check.
+- **Practice**:
+  - Quiz: 215 questions, including every "Your Turn!"/"Learning Check" slide question word for word.
+  - Drill: 21 endless randomized generators.
+  - Flashcards: 125 cards (Leitner).
+  - Mock: timed 30-minute quiz.
+  - Progress.
+- **Workspace**: a free-form canvas. Press A or double-click to add panels: any widget, plus the periodic table, notepad, equation solver and sketch pad. It has presets and saved layouts.
+
+## Layout
+- `materials_7-10/`: lecture PDFs.
+- `knowledge/`: the per-slide text the content was built from (`corpus.md`, `chunks.jsonl`).
+- `app/public/slides/`: rendered slide images.
+- `app/src/`:
+  - `content/`: Learn text
+  - `practice/bank/`: questions and flashcards
+  - `practice/generators.ts`: drill generators
+  - `widgets/L7…L10, tools/`: the workbenches
+  - `lib/kit.tsx`: shared step, feedback and number-input kit
+  - `lib/chem/elements.ts`: periodic data, using the slides' EN scale
+- `BRIEF.md`: the build brief, including the design principles.

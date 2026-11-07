@@ -1,0 +1,512 @@
+// Question bank + flashcards for L7. Owned by the content agent.
+import type { Flashcard, Question } from '../../types'
+
+const r = String.raw
+type NoId<T> = T extends unknown ? Omit<T, 'id' | 'lecture'> : never
+
+const TOP = {
+  light: 'Light & photons',
+  pe: 'Photoelectric effect',
+  bohr: 'Line spectra & Bohr',
+  qn: 'Quantum numbers',
+  cfg: 'Electron configuration',
+  trend: 'Periodic trends',
+}
+
+const raw: NoId<Question>[] = [
+  // ---------- slide question ----------
+  {
+    kind: 'numeric', topic: TOP.bohr, source: 'slide', slides: [21], difficulty: 2,
+    stem: r`Consider the Balmer series where $n_1 = 2$. Calculate $\lambda$ (in nm) for the transition from $n_2 = 6$ down to $n_1 = 2$. (Use $R_H = 109{,}678\ \text{cm}^{-1}$.)`,
+    answer: 410.3, unit: 'nm', tol: { rel: 0.005 },
+    steps: [
+      { prompt: r`Evaluate $1/\lambda = R_H(1/n_1^2 - 1/n_2^2)$ in cm$^{-1}$`, answer: 24373, unit: 'cm⁻¹', tol: { rel: 0.003 } },
+      { prompt: r`Convert $\lambda = 1/(1/\lambda)$ from cm to nm`, answer: 410.3, unit: 'nm', tol: { rel: 0.005 } },
+    ],
+    explanation: r`$1/\lambda = 109{,}678\,(1/4 - 1/36) = 109{,}678\times 0.22222 = 24{,}373\ \text{cm}^{-1}$.
+$\lambda = 1/24{,}373 = 4.103\times10^{-5}$ cm $= 4.103\times10^{-7}$ m $= 410.3$ nm, the violet Balmer line. (With $R_H=1.097\times10^7$ m$^{-1}$ you get 410.2 nm, the same within rounding.)`,
+  },
+  {
+    kind: 'mcq', topic: TOP.pe, source: 'generated', slides: [16], difficulty: 2,
+    stem: r`Slide 16 compares photons of energy $E_i>\phi$, $E_i=\phi/2$ and three photons of $\phi/2$ on a metal with work function $\phi$. Which statement is correct?`,
+    options: [
+      r`Only the photon with $E_i>\phi$ ejects an electron, with $KE=E_i-\phi$`,
+      r`Three photons of $\phi/2$ together eject an electron with KE $=\phi/2$`,
+      r`The photon with $E_i=\phi/2$ ejects an electron with zero KE`,
+      r`All three cases eject electrons because the total energy is at least $\phi/2$`,
+    ],
+    answer: [0],
+    explanation: r`An electron absorbs **one photon at a time**. It is freed only if that single photon has $E\ge\phi$, and the excess is KE. Photons of $\phi/2$ cannot pool their energy, so nothing is ejected no matter how many arrive.`,
+  },
+
+  // ---------- Light & photons ----------
+  {
+    kind: 'mcq', topic: TOP.light, source: 'generated', difficulty: 1,
+    stem: r`Which region of the electromagnetic spectrum has the **highest frequency**?`,
+    options: ['Radio waves', 'Infrared', 'Visible light', 'Microwaves', 'Ultraviolet'],
+    answer: [4],
+    explanation: r`Order of increasing $\nu$ (and $E$): radio < microwave < IR < visible < UV < X-ray < $\gamma$. Among the choices UV is highest. Since $\nu=c/\lambda$, highest $\nu$ means shortest $\lambda$.`,
+  },
+  {
+    kind: 'numeric', topic: TOP.light, source: 'generated', difficulty: 1,
+    stem: r`Green light has $\lambda = 500$ nm. Calculate its frequency. ($c=2.998\times10^8$ m/s)`,
+    answer: 5.996e14, unit: 'Hz', tol: { rel: 0.01 },
+    explanation: r`$\nu = c/\lambda = \dfrac{2.998\times10^{8}}{500\times10^{-9}\ \text{m}} = 5.996\times10^{14}\ \text{s}^{-1}$. The common error is leaving $\lambda$ in nm (forgetting $10^{-9}$).`,
+  },
+  {
+    kind: 'numeric', topic: TOP.light, source: 'generated', difficulty: 2,
+    stem: r`Calculate the energy of **one photon** of 500 nm light. ($h=6.626\times10^{-34}$ J·s, $c=2.998\times10^8$ m/s)`,
+    answer: 3.973e-19, unit: 'J', tol: { rel: 0.01 },
+    steps: [
+      { prompt: r`Frequency $\nu=c/\lambda$`, answer: 5.996e14, unit: 'Hz', tol: { rel: 0.01 } },
+      { prompt: r`Energy $E=h\nu$`, answer: 3.973e-19, unit: 'J', tol: { rel: 0.01 } },
+    ],
+    explanation: r`$\nu = 5.996\times10^{14}$ Hz, so $E=h\nu=(6.626\times10^{-34})(5.996\times10^{14})=3.973\times10^{-19}$ J. Equivalent: $E=hc/\lambda$.`,
+  },
+  {
+    kind: 'numeric', topic: TOP.light, source: 'generated', difficulty: 2,
+    stem: r`How much energy does **one mole** of 500 nm photons carry? ($N_A=6.022\times10^{23}$)`,
+    answer: 239.3, unit: 'kJ/mol', tol: { rel: 0.015 },
+    steps: [
+      { prompt: r`Energy per photon, $hc/\lambda$`, answer: 3.973e-19, unit: 'J', tol: { rel: 0.01 } },
+      { prompt: r`Multiply by $N_A$ and convert to kJ/mol`, answer: 239.3, unit: 'kJ/mol', tol: { rel: 0.015 } },
+    ],
+    explanation: r`$E_{photon}=3.973\times10^{-19}$ J. $\times 6.022\times10^{23}=2.393\times10^{5}$ J/mol $=239.3$ kJ/mol. Per photon is ~$10^{-19}$ J; per mole is ~$10^{5}$ J.`,
+  },
+  {
+    kind: 'numeric', topic: TOP.light, source: 'generated', difficulty: 2,
+    stem: r`A photon has energy $2.00\times10^{-19}$ J. What is its wavelength?`,
+    answer: 993, unit: 'nm', tol: { rel: 0.01 },
+    steps: [
+      { prompt: r`Frequency $\nu = E/h$`, answer: 3.018e14, unit: 'Hz', tol: { rel: 0.01 } },
+      { prompt: r`Wavelength $\lambda=c/\nu$`, answer: 993, unit: 'nm', tol: { rel: 0.01 } },
+    ],
+    explanation: r`$\nu=E/h=2.00\times10^{-19}/6.626\times10^{-34}=3.018\times10^{14}$ Hz. $\lambda=c/\nu=2.998\times10^8/3.018\times10^{14}=9.93\times10^{-7}$ m $=993$ nm (near-IR).`,
+  },
+  {
+    kind: 'mcq', topic: TOP.light, source: 'generated', difficulty: 1,
+    stem: r`Which statement about a **single photon** is correct?`,
+    options: [
+      'Blue light photons have more energy than red light photons',
+      'Red light photons have more energy because red light has a longer wavelength',
+      'Photon energy depends on the intensity of the beam',
+      'All visible photons have the same energy',
+    ],
+    answer: [0],
+    explanation: r`$E=h\nu=hc/\lambda$: shorter wavelength (blue) means higher $\nu$ and higher $E$. Intensity only sets how many photons there are, not the energy of each.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.light, source: 'generated', difficulty: 2,
+    stem: r`The wavelength of a light beam is doubled. What happens to the energy of each photon?`,
+    options: ['It doubles', 'It is halved', 'It is quartered', 'It is unchanged', r`It increases by $\sqrt2$`],
+    answer: [1],
+    explanation: r`$E=hc/\lambda$, so $E\propto 1/\lambda$. Doubling $\lambda$ halves $E$ (and halves $\nu$).`,
+  },
+  {
+    kind: 'numeric', topic: TOP.light, source: 'generated', difficulty: 1,
+    stem: r`An FM radio station broadcasts at 101.5 MHz ($1\ \text{MHz}=10^6$ Hz). What is the wavelength of the radio waves? ($c=2.998\times10^8$ m/s)`,
+    answer: 2.954, unit: 'm', tol: { rel: 0.01 },
+    explanation: r`$\lambda=c/\nu=2.998\times10^8/(101.5\times10^6)=2.954$ m. Radio waves have very long wavelengths.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.light, source: 'generated', difficulty: 2,
+    stem: r`Which arrangement lists radiation in order of **increasing photon energy**?`,
+    options: [
+      'Microwave < infrared < visible < ultraviolet < X-ray',
+      'X-ray < ultraviolet < visible < infrared < microwave',
+      'Infrared < microwave < visible < X-ray < ultraviolet',
+      'Visible < infrared < microwave < ultraviolet < X-ray',
+    ],
+    answer: [0],
+    explanation: r`$E=h\nu$, and frequency rises from radio/microwave through IR, visible, UV to X-rays and $\gamma$-rays. Option B is the order of *decreasing* energy.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.light, source: 'generated', slides: [7], difficulty: 1,
+    stem: r`Two identical waves meet exactly **out of phase**. The result is:`,
+    options: ['Constructive interference with double amplitude', 'Destructive interference: the waves cancel', 'A wave of double frequency', 'No change, since waves never interact'],
+    answer: [1],
+    explanation: r`Out-of-phase waves (peak meets trough) cancel: destructive interference. In-phase waves add: constructive.`,
+  },
+
+  // ---------- Photoelectric ----------
+  {
+    kind: 'mcq', topic: TOP.pe, source: 'generated', slides: [15], difficulty: 2,
+    stem: r`Very intense light with $\nu<\nu_0$ (below the threshold frequency) strikes a metal. What happens?`,
+    options: [
+      'Many electrons are ejected, because the beam is intense',
+      'Electrons are ejected after a short delay while energy accumulates',
+      'No electrons are ejected',
+      'Electrons are ejected but with zero kinetic energy',
+    ],
+    answer: [2],
+    explanation: r`Each photon must individually carry $h\nu\ge\phi$. Below $\nu_0$ no single photon can free an electron, and a higher photon *number* (intensity) cannot compensate (slide 15a).`,
+  },
+  {
+    kind: 'numeric', topic: TOP.pe, source: 'generated', difficulty: 2,
+    stem: r`A metal has work function $\phi=4.5\times10^{-19}$ J. It is illuminated with 200 nm light. Find the kinetic energy of an ejected electron.`,
+    answer: 5.43e-19, unit: 'J', tol: { rel: 0.02 },
+    steps: [
+      { prompt: r`Photon energy $hc/\lambda$`, answer: 9.932e-19, unit: 'J', tol: { rel: 0.01 } },
+      { prompt: r`$KE = h\nu-\phi$`, answer: 5.43e-19, unit: 'J', tol: { rel: 0.02 } },
+    ],
+    explanation: r`$E=hc/\lambda=(6.626\times10^{-34})(2.998\times10^8)/(200\times10^{-9})=9.932\times10^{-19}$ J. $KE=9.932\times10^{-19}-4.5\times10^{-19}=5.43\times10^{-19}$ J.`,
+  },
+  {
+    kind: 'numeric', topic: TOP.pe, source: 'generated', difficulty: 2,
+    stem: r`A different metal has $\phi=3.0\times10^{-19}$ J. Find the **threshold wavelength**: the longest wavelength that can eject electrons.`,
+    answer: 662, unit: 'nm', tol: { rel: 0.01 },
+    steps: [
+      { prompt: r`Threshold frequency $\nu_0=\phi/h$`, answer: 4.528e14, unit: 'Hz', tol: { rel: 0.01 } },
+      { prompt: r`$\lambda_0=c/\nu_0$`, answer: 662, unit: 'nm', tol: { rel: 0.01 } },
+    ],
+    explanation: r`$\nu_0=3.0\times10^{-19}/6.626\times10^{-34}=4.528\times10^{14}$ Hz. $\lambda_0=c/\nu_0=2.998\times10^8/4.528\times10^{14}=6.62\times10^{-7}$ m $=662$ nm. Anything **longer** than this fails to eject electrons.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.pe, source: 'generated', slides: [15], difficulty: 2,
+    stem: r`Above the threshold frequency, the light intensity is doubled at **constant** frequency. Which is correct?`,
+    options: [
+      'The number of ejected electrons doubles; their kinetic energy is unchanged',
+      'The number of electrons is unchanged; their kinetic energy doubles',
+      'Both the number and KE double',
+      'Neither changes',
+    ],
+    answer: [0],
+    explanation: r`Intensity = photons per second. Twice as many photons eject twice as many electrons (graph b), but each electron still gets $h\nu-\phi$ (graph d is flat).`,
+  },
+  {
+    kind: 'mcq', topic: TOP.pe, source: 'generated', slides: [15], difficulty: 2,
+    stem: r`In a plot of electron KE vs light frequency (slide 15c) the slope and the $\nu$-axis intercept are:`,
+    options: [
+      r`slope $=h$; intercept $=\nu_0=\phi/h$`,
+      r`slope $=\phi$; intercept $=h$`,
+      r`slope $=1/h$; intercept $=\phi$`,
+      r`slope $=c$; intercept $=\lambda_0$`,
+    ],
+    answer: [0],
+    explanation: r`$KE=h\nu-\phi$ is a straight line in $\nu$: slope $h$, and $KE=0$ at $\nu_0=\phi/h$.`,
+  },
+  {
+    kind: 'numeric', topic: TOP.pe, source: 'generated', difficulty: 3,
+    stem: r`An electron is ejected with $KE=5.43\times10^{-19}$ J. Find its speed. ($m_e=9.109\times10^{-31}$ kg)`,
+    answer: 1.09e6, unit: 'm/s', tol: { rel: 0.02 },
+    explanation: r`$KE=\tfrac12 mv^2\Rightarrow v=\sqrt{2KE/m}=\sqrt{2(5.43\times10^{-19})/9.109\times10^{-31}}=1.09\times10^{6}$ m/s.`,
+  },
+
+  // ---------- Line spectra & Bohr ----------
+  {
+    kind: 'numeric', topic: TOP.bohr, source: 'generated', difficulty: 2,
+    stem: r`Calculate the wavelength of the H-alpha line (Balmer, $n=3\to2$). Use $R_H=1.097\times10^{7}\ \text{m}^{-1}$.`,
+    answer: 656.3, unit: 'nm', tol: { rel: 0.005 },
+    steps: [
+      { prompt: r`$1/\lambda=R_H(1/2^2-1/3^2)$ in m$^{-1}$`, answer: 1.5236e6, unit: 'm⁻¹', tol: { rel: 0.005 } },
+      { prompt: r`$\lambda$ in nm`, answer: 656.3, unit: 'nm', tol: { rel: 0.005 } },
+    ],
+    explanation: r`$1/\lambda=1.097\times10^7(0.25-0.1111)=1.5236\times10^6$ m$^{-1}$, so $\lambda=6.563\times10^{-7}$ m $=656.3$ nm (red).`,
+  },
+  {
+    kind: 'numeric', topic: TOP.bohr, source: 'generated', difficulty: 2,
+    stem: r`Find the wavelength of the first Lyman line ($n=2\to1$). ($R_H=1.097\times10^7$ m$^{-1}$)`,
+    answer: 121.5, unit: 'nm', tol: { rel: 0.005 },
+    explanation: r`$1/\lambda=1.097\times10^7(1-1/4)=8.2275\times10^6$ m$^{-1}$, $\lambda=1.215\times10^{-7}$ m $=121.5$ nm: ultraviolet (Lyman series ends on $n=1$).`,
+  },
+  {
+    kind: 'mcq', topic: TOP.bohr, source: 'generated', difficulty: 1,
+    stem: r`The hydrogen emission series that falls mainly in the **visible** region ends at which level?`,
+    options: [r`$n=1$ (Lyman)`, r`$n=2$ (Balmer)`, r`$n=3$ (Paschen)`, r`$n=4$ (Brackett)`],
+    answer: [1],
+    explanation: r`Balmer lines ($n_2\to2$) are visible (410, 434, 486, 656 nm). Lyman ($\to1$) is UV; Paschen ($\to3$) and beyond are IR.`,
+  },
+  { kind: 'widget', topic: TOP.bohr, source: 'generated', difficulty: 2, widget: 'hatom', task: { ni: 6, nf: 2 },
+    stem: r`Hydrogen electron drops from $n=6$ to $n=2$. Work out whether it is emission or absorption, the energy of the photon and its wavelength.`,
+    explanation: r`$n_i>n_f$ so **emission**. $\Delta E=2.18\times10^{-18}(1/4-1/36)=4.84\times10^{-19}$ J; $\lambda=hc/\Delta E=410$ nm (violet, Balmer).` },
+  { kind: 'widget', topic: TOP.bohr, source: 'generated', difficulty: 2, widget: 'hatom', task: { ni: 3, nf: 1 },
+    stem: r`Analyse the hydrogen transition $n=3\to n=1$: type of process, photon energy, wavelength and spectral region.`,
+    explanation: r`Emission. $\Delta E=2.18\times10^{-18}(1-1/9)=1.94\times10^{-18}$ J; $\lambda=102.6$ nm: UV (Lyman).` },
+  { kind: 'widget', topic: TOP.bohr, source: 'generated', difficulty: 2, widget: 'hatom', task: { ni: 2, nf: 5 },
+    stem: r`A hydrogen atom goes from $n=2$ to $n=5$. Is a photon absorbed or emitted, and what are its energy and wavelength?`,
+    explanation: r`$n_f>n_i$: **absorption**. $|\Delta E|=2.18\times10^{-18}(1/4-1/25)=4.58\times10^{-19}$ J, $\lambda=434$ nm (the same wavelength as the Balmer 5→2 emission line).` },
+  {
+    kind: 'numeric', topic: TOP.bohr, source: 'generated', difficulty: 1,
+    stem: r`Calculate the energy of the electron in the $n=3$ level of hydrogen. ($b=2.18\times10^{-18}$ J)`,
+    answer: -2.422e-19, unit: 'J', tol: { rel: 0.01 },
+    explanation: r`$E_n=-b/n^2=-2.18\times10^{-18}/9=-2.42\times10^{-19}$ J. Negative means bound.`,
+  },
+  {
+    kind: 'numeric', topic: TOP.bohr, source: 'generated', difficulty: 2,
+    stem: r`Calculate the wavelength of light emitted when a hydrogen electron falls from $n=4$ to $n=2$ using the Bohr energy expression.`,
+    answer: 486, unit: 'nm', tol: { rel: 0.01 },
+    steps: [
+      { prompt: r`$\Delta E=b(1/n_l^2-1/n_h^2)$`, answer: 4.0875e-19, unit: 'J', tol: { rel: 0.01 } },
+      { prompt: r`$\lambda=hc/\Delta E$`, answer: 486, unit: 'nm', tol: { rel: 0.01 } },
+    ],
+    explanation: r`$\Delta E=2.18\times10^{-18}(1/4-1/16)=4.09\times10^{-19}$ J. $\lambda=(6.626\times10^{-34})(2.998\times10^8)/4.09\times10^{-19}=4.86\times10^{-7}$ m $=486$ nm (blue-green Balmer line).`,
+  },
+  {
+    kind: 'numeric', topic: TOP.bohr, source: 'generated', difficulty: 2,
+    stem: r`What is the ionization energy of ground-state hydrogen in kJ/mol? ($b=2.18\times10^{-18}$ J/atom)`,
+    answer: 1313, unit: 'kJ/mol', tol: { rel: 0.01 },
+    explanation: r`Ionisation is $n=1\to\infty$: $\Delta E=b(1-0)=2.18\times10^{-18}$ J per atom. $\times6.022\times10^{23}=1.313\times10^{6}$ J/mol $=1313$ kJ/mol.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.bohr, source: 'generated', difficulty: 2,
+    stem: r`Which hydrogen transition emits the photon of **highest energy**?`,
+    options: [r`$n=2\to1$`, r`$n=3\to2$`, r`$n=4\to3$`, r`$n=5\to4$`, r`$n=4\to2$`],
+    answer: [0],
+    explanation: r`Energy levels converge as $n$ grows, so gaps shrink. $\Delta E\propto 1/n_l^2-1/n_h^2$: 2→1 gives 0.75, 4→2 gives 0.19, 3→2 gives 0.14, 4→3 gives 0.049, 5→4 gives 0.031.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.bohr, source: 'generated', slides: [22, 23], difficulty: 1,
+    stem: r`The existence of discrete **line spectra** shows that:`,
+    options: [
+      'Electron energies in atoms are quantised',
+      'Electrons orbit the nucleus in circles',
+      'Atoms emit all wavelengths equally',
+      'The nucleus is positively charged',
+    ],
+    answer: [0],
+    explanation: r`Only fixed energy gaps exist, so only certain photon energies are emitted: the electron's energy is quantised.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.bohr, source: 'generated', slides: [30], difficulty: 2,
+    stem: r`Which is a failure of the Bohr model?`,
+    options: [
+      'It could not reproduce the hydrogen Rydberg equation',
+      'It could not explain spectra of multi-electron atoms',
+      'It predicted negative energies for bound electrons',
+      'It required quantised energy levels',
+    ],
+    answer: [1],
+    explanation: r`Bohr's model reproduces H's spectrum (a success) but fails for multi-electron atoms and does not explain why an orbiting charge does not radiate and collapse into the nucleus (slide 30). Negative bound-state energies and quantisation are features of the model, not failures.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.bohr, source: 'generated', slides: [28, 29], difficulty: 2,
+    stem: r`In the Bohr model, which state has the **lowest (most negative)** energy?`,
+    options: [r`$n=\infty$`, r`$n=1$`, r`$n=2$`, r`All levels have the same energy`],
+    answer: [1],
+    explanation: r`$E_n=-b/n^2$. $n=1$ gives $-b$, the most negative (ground state). $n=\infty$ gives $E=0$: electron free, highest energy.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.bohr, source: 'generated', slides: [18], difficulty: 1,
+    stem: r`Which statement about atomic emission (line) spectra is true?`,
+    options: [
+      'Each element has its own unique line spectrum',
+      'All elements produce the same lines',
+      'They are continuous like white light',
+      'They only occur for hydrogen',
+    ],
+    answer: [0],
+    explanation: r`Line spectra act as fingerprints of elements. Hydrogen is just the simplest case.`,
+  },
+
+  // ---------- Quantum numbers ----------
+  {
+    kind: 'mcq', topic: TOP.qn, source: 'generated', slides: [34], difficulty: 2,
+    stem: r`Which set $(n,\ell,m_\ell)$ is **not** allowed?`,
+    options: ['(2, 1, −1)', '(3, 2, 0)', '(1, 0, 0)', '(2, 2, 1)', '(4, 3, −3)'],
+    answer: [3],
+    explanation: r`$\ell$ runs from 0 to $n-1$. For $n=2$, $\ell\le1$, so $\ell=2$ is impossible (there is no 2d). Others: 2p, 3d, 1s, 4f all fine.`,
+  },
+  {
+    kind: 'numeric', topic: TOP.qn, source: 'generated', slides: [34], difficulty: 1,
+    stem: r`How many orbitals are in the $n=3$ shell?`,
+    answer: 9, tol: { abs: 0 },
+    explanation: r`$n=3$: 3s (1) + 3p (3) + 3d (5) $=9=n^2$.`,
+  },
+  {
+    kind: 'numeric', topic: TOP.qn, source: 'generated', slides: [34], difficulty: 1,
+    stem: r`What is the maximum number of electrons that can occupy the $n=4$ shell?`,
+    answer: 32, tol: { abs: 0 },
+    explanation: r`Orbitals $=n^2=16$ (4s 1, 4p 3, 4d 5, 4f 7), two electrons each: $2n^2=32$.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.qn, source: 'generated', slides: [34], difficulty: 1,
+    stem: r`Which subshell designation is **impossible**?`,
+    options: ['1s', '2p', '2d', '3d', '4f'],
+    answer: [2],
+    explanation: r`Allowed $\ell$ values are 0…$n-1$. For $n=2$: $\ell=0,1$ (2s, 2p). d needs $\ell=2$, so $n\ge3$.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.qn, source: 'generated', slides: [34], difficulty: 1,
+    stem: r`For $\ell=2$, the allowed values of $m_\ell$ are:`,
+    options: ['0, 1, 2', '−1, 0, 1', '−2, −1, 0, 1, 2', '−3 to +3', '0 only'],
+    answer: [2],
+    explanation: r`$m_\ell=-\ell,\dots,+\ell$: five values for a d subshell, so 5 orbitals.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.qn, source: 'generated', slides: [35, 38], difficulty: 2,
+    stem: r`How many **radial (spherical) nodes** does a 3s orbital have?`,
+    options: ['0', '1', '2', '3'],
+    answer: [2],
+    explanation: r`Radial nodes $=n-\ell-1=3-0-1=2$ (slide 38: "3s has two spherical nodes"). A 3p has 1 radial node plus 1 planar node; a 3d has 0 radial and 2 planar nodes.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.qn, source: 'generated', slides: [35, 36], difficulty: 1,
+    stem: r`Which quantum number determines the **shape** of an orbital?`,
+    options: [r`$n$`, r`$\ell$`, r`$m_\ell$`, r`$m_s$`],
+    answer: [1],
+    explanation: r`$\ell$ sets the shape (0 spherical, 1 dumbbell, 2 cloverleaf…). $n$ sets size/energy, $m_\ell$ the orientation, $m_s$ the spin.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.qn, source: 'generated', difficulty: 2,
+    stem: r`How many orbitals are in a 4f subshell, and what are $n$ and $\ell$?`,
+    options: [r`7 orbitals; $n=4,\ \ell=3$`, r`5 orbitals; $n=4,\ \ell=3$`, r`7 orbitals; $n=4,\ \ell=4$`, r`9 orbitals; $n=3,\ \ell=3$`],
+    answer: [0],
+    explanation: r`f means $\ell=3$, giving $2\ell+1=7$ orbitals; the number 4 is $n$.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.qn, source: 'generated', slides: [31, 33], difficulty: 2,
+    stem: r`In quantum mechanics an **orbital** is best described as:`,
+    options: [
+      'A circular path followed by the electron',
+      r`A region of space where the probability of finding the electron is high, from $|\Psi|^2$`,
+      'A fixed distance from the nucleus',
+      'A shell holding exactly 8 electrons',
+    ],
+    answer: [1],
+    explanation: r`The Schrödinger equation $\hat H\Psi=E\Psi$ gives wave functions $\Psi$; $|\Psi|^2$ is the probability density. An orbital is not an orbit.`,
+  },
+
+  // ---------- Electron configuration ----------
+  { kind: 'widget', topic: TOP.cfg, source: 'generated', difficulty: 2, widget: 'econfig', task: { element: 'Cr' },
+    stem: r`Fill the orbital boxes for chromium (Z = 24).`,
+    explanation: r`Cr is an exception: $[\text{Ar}]3d^54s^1$, not $3d^44s^2$. Half-filled d plus half-filled s (six unpaired electrons) is more stable.` },
+  { kind: 'widget', topic: TOP.cfg, source: 'generated', difficulty: 2, widget: 'econfig', task: { element: 'Cu' },
+    stem: r`Fill the orbital boxes for copper (Z = 29).`,
+    explanation: r`Cu: $[\text{Ar}]3d^{10}4s^1$ (filled d subshell), not $3d^94s^2$.` },
+  { kind: 'widget', topic: TOP.cfg, source: 'generated', difficulty: 1, widget: 'econfig', task: { element: 'O' },
+    stem: r`Fill the orbital boxes for oxygen. Apply Hund's rule in the 2p subshell.`,
+    explanation: r`$1s^22s^22p^4$. 2p has four electrons in three orbitals: one orbital paired, two singly occupied with parallel spins (Hund).` },
+  { kind: 'widget', topic: TOP.cfg, source: 'generated', difficulty: 2, widget: 'econfig', task: { element: 'Fe' },
+    stem: r`Fill the orbital boxes for iron (Z = 26) and note the number of unpaired electrons.`,
+    explanation: r`$[\text{Ar}]3d^64s^2$. Of six d electrons in five orbitals: one pair + four unpaired, so 4 unpaired electrons.` },
+  {
+    kind: 'mcq', topic: TOP.cfg, source: 'generated', difficulty: 2,
+    stem: r`How many **unpaired electrons** are in a ground-state nitrogen atom?`,
+    options: ['0', '1', '2', '3', '5'],
+    answer: [3],
+    explanation: r`N: $1s^22s^22p^3$. Hund's rule puts one electron in each of the three 2p orbitals with parallel spins: 3 unpaired.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.cfg, source: 'generated', difficulty: 2,
+    stem: r`Which is the correct ground-state configuration of chromium?`,
+    options: [r`$[\text{Ar}]3d^44s^2$`, r`$[\text{Ar}]3d^54s^1$`, r`$[\text{Ar}]3d^64s^0$`, r`$[\text{Ne}]3d^54s^1$`],
+    answer: [1],
+    explanation: r`Half-filled 3d and 4s subshells (each orbital singly occupied) is more stable. $[\text{Ne}]$ would omit the 3s and 3p electrons (18 e$^-$ core is $[\text{Ar}]$).`,
+  },
+  {
+    kind: 'mcq', topic: TOP.cfg, source: 'generated', slides: [39], difficulty: 1,
+    stem: r`Which block of the periodic table is being filled in the elements Sc to Zn?`,
+    options: ['s block', 'p block', 'd block', 'f block'],
+    answer: [2],
+    explanation: r`Sc–Zn fill the 3d subshell (groups 3–12, the d block). The f block is the lanthanides/actinides (slide 39).`,
+  },
+  {
+    kind: 'mcq', topic: TOP.cfg, source: 'generated', difficulty: 2,
+    stem: r`The Pauli exclusion principle says:`,
+    options: [
+      'Each orbital holds at most two electrons, with opposite spins',
+      'Electrons fill degenerate orbitals singly before pairing',
+      'Lowest-energy orbitals fill first',
+      'Electron energy is quantised',
+    ],
+    answer: [0],
+    explanation: r`B is Hund's rule, C is Aufbau. Pauli: no two electrons in an atom share all four quantum numbers, so an orbital holds max 2 e$^-$ of opposite spin.`,
+  },
+
+  // ---------- Periodic trends ----------
+  {
+    kind: 'mcq', topic: TOP.trend, source: 'generated', slides: [40], difficulty: 1,
+    stem: r`Which atom has the **largest** atomic radius?`,
+    options: ['Mg', 'Na', 'Si', 'Cl', 'Ar'],
+    answer: [1],
+    explanation: r`Radius decreases across a period (Zeff increases). Na is the leftmost of this period (excluding noble gas radius subtleties), so largest.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.trend, source: 'generated', slides: [41, 42], difficulty: 2,
+    stem: r`Which element has the **lowest** first ionization energy: B, Be, C, N?`,
+    options: ['B', 'Be', 'C', 'N'],
+    answer: [0],
+    explanation: r`From the IE graph: Be 899, B 801, C 1086, N 1402 kJ/mol. B dips below Be because its outer electron is in a higher-energy 2p orbital.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.trend, source: 'generated', slides: [41], difficulty: 2,
+    stem: r`Why is the first ionization energy of oxygen **lower** than that of nitrogen?`,
+    options: [
+      'Oxygen has a larger atomic radius than nitrogen',
+      'A 2p electron in O is paired, and electron–electron repulsion makes it easier to remove',
+      'Oxygen has fewer protons',
+      'Oxygen has a half-filled 2p subshell',
+    ],
+    answer: [1],
+    explanation: r`N is $2p^3$ (half-filled, each orbital singly occupied). O is $2p^4$: one orbital holds a pair whose repulsion eases removal. O is not larger than N and has more protons.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.trend, source: 'generated', slides: [43], difficulty: 2,
+    stem: r`Which element has the **most negative** electron affinity (slide 43)?`,
+    options: ['F', 'Cl', 'O', 'S', 'Ne'],
+    answer: [1],
+    explanation: r`Cl ≈ −349 kJ/mol, slightly more negative than F ≈ −328, an exception to "up and to the right" caused by crowding in F's small 2p subshell. Ne ≈ 0.`,
+  },
+  {
+    kind: 'mcq', topic: TOP.trend, source: 'generated', slides: [41, 42], difficulty: 3,
+    stem: r`An element has successive ionization energies (kJ/mol) IE$_1=738$, IE$_2=1451$, IE$_3=7733$. Which group is it likely in?`,
+    options: ['Group 1', 'Group 2', 'Group 13', 'Group 14'],
+    answer: [1],
+    explanation: r`The huge jump after IE$_2$ means two valence electrons were removed and the third comes from a stable noble-gas core. This is Mg (group 2).`,
+  },
+  {
+    kind: 'mcq', topic: TOP.trend, source: 'generated', slides: [43], difficulty: 1,
+    stem: r`Electron affinity is defined as the energy change for:`,
+    options: [
+      r`$\text{X}(g)\to\text{X}^+(g)+e^-$`,
+      r`$\text{X}(g)+e^-\to\text{X}^-(g)$`,
+      r`$\text{X}(s)\to\text{X}(g)$`,
+      r`$\text{X}^-(g)\to\text{X}(g)+e^-$`,
+    ],
+    answer: [1],
+    explanation: r`A is ionization energy. EA is energy released/absorbed on gaining an electron, and it is negative for most elements (exothermic).`,
+  },
+  {
+    kind: 'mcq', topic: TOP.trend, source: 'generated', slides: [41], difficulty: 1,
+    stem: r`Which element has the highest first ionization energy?`,
+    options: ['Na', 'K', 'He', 'Ne', 'Cl'],
+    answer: [2],
+    explanation: r`IE rises across periods and falls down groups. He (small, 2 e$^-$ held by 2 protons, no shielding) is the highest of all elements (≈2370 kJ/mol), above Ne (≈2080).`,
+  },
+]
+
+export const questions: Question[] = raw.map((q, i) => ({ ...q, id: `l7-q${String(i + 1).padStart(2, '0')}`, lecture: 'L7' }) as Question)
+
+const fc: [string, string, string][] = [
+  [TOP.light, r`Relationship between wavelength and frequency?`, r`$\lambda\nu=c$, with $c=2.998\times10^8$ m/s. Inverse relationship.`],
+  [TOP.light, r`Photon energy equations?`, r`$E=h\nu=hc/\lambda$, $h=6.626\times10^{-34}$ J·s. Per mole: $\times N_A$.`],
+  [TOP.light, r`Order of EM spectrum by increasing energy?`, r`Radio < microwave < IR < visible (red→violet) < UV < X-ray < $\gamma$.`],
+  [TOP.light, r`What is a continuous spectrum?`, r`Unbroken range of all colours, e.g. white light through a prism. Contrast with a line spectrum.`],
+  [TOP.light, r`Constructive vs destructive interference?`, r`Constructive: in-phase waves add (bigger amplitude). Destructive: out-of-phase waves cancel.`],
+  [TOP.light, r`What is a node?`, r`A point of zero amplitude (where the wave crosses the axis).`],
+  [TOP.light, r`Trap: energy per photon vs per mole?`, r`Per photon is about $10^{-19}$ J. Multiply by $6.022\times10^{23}$ for J/mol, and divide by 1000 for kJ/mol.`],
+  [TOP.pe, r`Photoelectric effect equation?`, r`$h\nu=\phi+KE$, so $KE=h\nu-\phi$; threshold $\nu_0=\phi/h$.`],
+  [TOP.pe, r`What is the work function $\phi$?`, r`Minimum energy needed to remove an electron from the metal (E of free e$^-$ minus E of bound e$^-$).`],
+  [TOP.pe, r`Effect of increasing light intensity (above $\nu_0$)?`, r`More photons, so more electrons ejected. KE of each is unchanged.`],
+  [TOP.pe, r`Effect of increasing frequency (above $\nu_0$)?`, r`Each ejected electron has higher KE (linear, slope $h$). Number depends on intensity.`],
+  [TOP.pe, r`Light below threshold frequency, however bright?`, r`No electrons ejected; a single photon must have $h\nu\ge\phi$.`],
+  [TOP.bohr, r`Rydberg equation?`, r`$1/\lambda=R_H(1/n_1^2-1/n_2^2)$, $n_2>n_1$; $R_H=1.097\times10^7$ m$^{-1}$ = 109,678 cm$^{-1}$.`],
+  [TOP.bohr, r`Hydrogen series and regions?`, r`Lyman $n_1=1$ (UV); Balmer $n_1=2$ (visible); Paschen $n_1=3$ (IR).`],
+  [TOP.bohr, r`Bohr energy of level $n$ in H?`, r`$E_n=-b/n^2=-R_Hhc/n^2$, $b=2.18\times10^{-18}$ J/atom.`],
+  [TOP.bohr, r`Photon energy for a Bohr transition?`, r`$\Delta E=E_h-E_l=b(1/n_l^2-1/n_h^2)=hc/\lambda$.`],
+  [TOP.bohr, r`Why is $E_n$ negative in the Bohr model?`, r`Coulomb attraction; $E=0$ at $n=\infty$ (free electron). More negative = more stable.`],
+  [TOP.bohr, r`Ground state vs excited state?`, r`Ground: $n=1$, lowest energy. Excited: $n\ge2$; it drops back down by emitting a photon.`],
+  [TOP.bohr, r`What does "quantised" mean?`, r`Only certain discrete values are allowed (a ladder, not a ramp).`],
+  [TOP.bohr, r`Two failures of the Bohr model?`, r`Cannot explain multi-electron atom spectra; does not explain why the electron doesn't radiate and spiral into the nucleus.`],
+  [TOP.qn, r`What are the quantum numbers and what do they control?`, r`$n$ (size/energy), $\ell$ (shape), $m_\ell$ (orientation), $m_s$ (spin).`],
+  [TOP.qn, r`Allowed values of $\ell$ and $m_\ell$?`, r`$\ell=0\dots n-1$ (s,p,d,f = 0,1,2,3); $m_\ell=-\ell\dots+\ell$.`],
+  [TOP.qn, r`Number of orbitals per subshell and per shell?`, r`s 1, p 3, d 5, f 7; shell has $n^2$ orbitals and holds $2n^2$ electrons.`],
+  [TOP.qn, r`Nodes in an orbital?`, r`Total $n-1$; radial $n-\ell-1$; angular $\ell$. 3s: 2 spherical nodes.`],
+  [TOP.qn, r`Schrödinger equation (slide 32)?`, r`$\hat H\Psi=E\Psi$; $\Psi$ = wave function, $\hat H$ = Hamiltonian operator, $|\Psi|^2$ = probability density.`],
+  [TOP.cfg, r`Three filling rules?`, r`Aufbau (lowest first), Pauli (max 2 per orbital, opposite spins), Hund (single occupancy first, parallel spins).`],
+  [TOP.cfg, r`Cr and Cu configurations?`, r`Cr $[\text{Ar}]3d^54s^1$; Cu $[\text{Ar}]3d^{10}4s^1$ (half- and fully-filled d are extra stable).`],
+  [TOP.trend, r`Atomic radius trend?`, r`Decreases across a period (Zeff up); increases down a group (more shells).`],
+  [TOP.trend, r`First ionization energy trend and its dips?`, r`Increases across a period, decreases down a group. Dips: B < Be (p vs s) and O < N (paired electron).`],
+  [TOP.trend, r`Electron affinity trend?`, r`More negative across a period (halogens most negative; Cl > F). Noble gases, Be, Mg, N ≈ 0.`],
+]
+export const flashcards: Flashcard[] = fc.map(([topic, front, back], i) => ({ id: `l7-f${String(i + 1).padStart(2, '0')}`, lecture: 'L7', topic, front, back }))

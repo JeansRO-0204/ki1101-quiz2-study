@@ -1,0 +1,111 @@
+// Shared contracts. Every agent builds against these; do not change shapes without updating all users.
+import type { ComponentType, LazyExoticComponent } from 'react'
+
+export type LectureId = 'L7' | 'L8' | 'L9' | 'L10'
+export const LECTURES: { id: LectureId; title: string; short: string; color: string }[] = [
+  { id: 'L7', title: 'Atomic Structure', short: 'Atoms', color: '#7c3aed' },
+  { id: 'L8', title: 'Basics of Chemical Bonding', short: 'Bonding basics', color: '#0891b2' },
+  { id: 'L9', title: 'Molecular Structure', short: 'Lewis & resonance', color: '#d97706' },
+  { id: 'L10', title: 'Chemical Bonding Theory', short: 'VSEPR, VB, MO', color: '#db2777' },
+]
+
+/** learn = hint after every step and unlock steps one by one; test = no hints until the final Check. */
+export type Mode = 'learn' | 'test'
+
+/** Result a widget reports when it is used as a practice task (or when the user presses Check). */
+export interface WidgetResult {
+  correct: boolean
+  /** 0..1, optional partial credit */
+  score?: number
+  /** one-line summary shown in practice history, e.g. "Bond order wrong: you said 2, it is 2.5" */
+  summary?: string
+}
+
+/**
+ * Props every interactive widget accepts.
+ * - standalone (Learn page / Workspace): no task; widget offers its own picker / free exploration.
+ * - practice: `task` is set (shape defined per widget in TASKS below); the widget hides the answer,
+ *   runs in the given mode and calls onResult exactly once when the learner presses its final Check.
+ */
+export interface WidgetProps<T = unknown> {
+  mode?: Mode
+  task?: T
+  onResult?: (r: WidgetResult) => void
+  /** smaller chrome for Workspace panels */
+  compact?: boolean
+}
+
+export interface WidgetDef {
+  id: string
+  title: string
+  lecture: LectureId | 'tool'
+  blurb: string
+  component: LazyExoticComponent<ComponentType<WidgetProps<any>>> | ComponentType<WidgetProps<any>>
+  /** default Workspace panel size in px */
+  size?: { w: number; h: number }
+  /** true if the widget supports `task` (practice "build it" questions) */
+  taskable?: boolean
+}
+
+/* ---------- task shapes for taskable widgets (practice engine creates these) ---------- */
+export interface Tasks {
+  /** Lewis workbench: species id/formula from the curated list in widgets/L9/species.ts, e.g. "SO4^2-", "NO3^-", "CO2" */
+  lewis: { species: string; resonance?: boolean }
+  /** Orbital box filler: element symbol, optional ion charge (e.g. Fe, 3 → Fe3+) */
+  econfig: { element: string; charge?: number }
+  /** VSEPR: species formula from widgets/L10 species list, e.g. "SF4", "XeF4", "NH3" */
+  vsepr: { species: string }
+  /** Hybridization: central atom of species, e.g. { species: "PCl5" } */
+  hybrid: { species: string }
+  /** MO diagram: homo/heteronuclear diatomic incl. ions, e.g. "O2", "O2^-", "NO^+", "N2", "He2^+" */
+  mo: { species: string }
+  /** Hydrogen transitions: emission/absorption between levels */
+  hatom: { ni: number; nf: number }
+}
+
+/* ---------- learn content ---------- */
+export interface Section {
+  id: string
+  title: string
+  /** markdown with KaTeX ($...$, $$...$$). Keep it tight: exam-focused, bullets, worked examples. */
+  md: string
+  /** slide numbers in this lecture's PDF that this section is based on */
+  slides: number[]
+  /** widget ids (from the registry) embedded after the markdown */
+  widgets?: string[]
+  /** short "common traps" list, rendered as a callout */
+  traps?: string[]
+}
+export interface Lecture {
+  id: LectureId
+  title: string
+  summary: string
+  sections: Section[]
+}
+
+/* ---------- practice ---------- */
+interface QBase {
+  id: string
+  lecture: LectureId
+  topic: string
+  /** 'slide' = verbatim from a "Your Turn!" / "Learning Check" slide; 'generated' otherwise */
+  source: 'slide' | 'generated'
+  slides?: number[]
+  stem: string // markdown + KaTeX
+  explanation: string // markdown + KaTeX, worked solution
+  difficulty?: 1 | 2 | 3
+}
+export interface MCQ extends QBase { kind: 'mcq'; options: string[]; answer: number[] }
+export interface NumericQ extends QBase {
+  kind: 'numeric'
+  answer: number
+  unit?: string
+  /** relative tolerance (default 0.02) or absolute */
+  tol?: { rel?: number; abs?: number }
+  /** optional intermediate steps the learner fills first, each checked separately */
+  steps?: { prompt: string; answer: number; unit?: string; tol?: { rel?: number; abs?: number } }[]
+}
+export interface WidgetQ extends QBase { kind: 'widget'; widget: keyof Tasks; task: Tasks[keyof Tasks] }
+export type Question = MCQ | NumericQ | WidgetQ
+
+export interface Flashcard { id: string; lecture: LectureId; topic: string; front: string; back: string }
