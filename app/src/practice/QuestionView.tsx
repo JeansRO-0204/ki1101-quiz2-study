@@ -1,8 +1,11 @@
 // Renders and grades a single question (mcq / numeric with steps / widget). Used by Quiz, Drill and Mock.
-import { Suspense, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
+import { Suspense, createContext, useContext, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import { Feedback, Md, NumInput, SlideRef, Step, Verdict, parseNum, sci, within, type Note } from '../lib/kit'
 import { WIDGET } from '../registry'
-import type { MCQ, NumericQ, Question, WidgetQ, WidgetProps, WidgetResult } from '../types'
+import type { MCQ, NumericQ, OpenQ, Question, WidgetQ, WidgetProps, WidgetResult } from '../types'
+import { ScriptArea } from '../lib/scripts'
+import { PAST_CONTEXT } from './bank'
+import { HintLadder, LangSwitch, loc, useLang } from './Hints'
 import { diagnose } from './diagnose'
 import { toggleFlag, usePStore } from './store'
 import { IconCheckFill, IconXFill } from '../lib/icons'
@@ -11,6 +14,7 @@ export type Answer =
   | { k: 'mcq'; sel: number[] }
   | { k: 'num'; steps: string[]; stepOk: (boolean | null)[]; revealed: boolean[]; final: string }
   | { k: 'widget'; r?: WidgetResult }
+  | { k: 'open'; text: string; self?: number }
 export interface Outcome { correct: boolean; score: number; skipped?: boolean; answer: Answer }
 /** learn = feedback after each answer; test = answers autosave, no feedback; review = read-only with full feedback. */
 export type ViewMode = 'learn' | 'test' | 'review'
@@ -23,6 +27,7 @@ export function gradeAnswer(q: Question, a: Answer): { correct: boolean; score: 
   if (q.kind === 'mcq' && a.k === 'mcq') { const ok = sameSet(a.sel, q.answer); return { correct: ok, score: ok ? 1 : 0 } }
   if (q.kind === 'numeric' && a.k === 'num') { const ok = within(parseNum(a.final), q.answer, q.tol); return { correct: ok, score: ok ? 1 : 0 } }
   if (q.kind === 'widget' && a.k === 'widget') return { correct: !!a.r?.correct, score: a.r?.score ?? (a.r?.correct ? 1 : 0) }
+  if (q.kind === 'open' && a.k === 'open') return { correct: a.self === 1, score: a.self ?? 0 }
   return { correct: false, score: 0 }
 }
 
@@ -35,21 +40,66 @@ interface Props {
   nextLabel?: string
 }
 
-export default function QuestionView(props: Props) {
-  const { q } = props
+export default function QuestionView(props: Props & { hideMeta?: boolean }) {
+  const { q: q0, mode, hideMeta } = props
+  const [lang, setLang] = useLang()
+  const L = useMemo(() => loc(q0, lang), [q0, lang])
+  // language-resolved copy: grading uses indexes/numbers, so only text fields change
+  const q = useMemo(() => ({ ...q0, stem: L.stem, explanation: L.explanation, ...(q0.kind === 'mcq' ? { options: L.options } : {}), ...(q0.kind === 'open' ? { answer: L.answer } : {}) }) as Question, [q0, L])
+  const vp = { ...props, q }
   return (
     <div className="pq">
-      <div className="pq-meta">
-        <span className="chip">{q.lecture}</span>
-        <span className="chip">{q.topic}</span>
-        {q.source === 'slide' && <span className="chip pq-slide" title="Taken from a slide exercise">slide</span>}
-        {q.difficulty && <span className="pq-diff" title={`Difficulty ${q.difficulty}/3`}>{'●'.repeat(q.difficulty)}<i>{'●'.repeat(3 - q.difficulty)}</i></span>}
-      </div>
+      {!hideMeta && (
+        <div className="pq-meta">
+          <span className="chip">{q.lecture}</span>
+          <span className="chip">{q.topic}</span>
+          {q.source === 'slide' && <span className="chip pq-slide" title="Taken from a slide exercise">slide</span>}
+          {q.past && <span className="chip pq-past" title="From a past KI1101 Quiz 2">Kuis 2 {q.past.paper.match(/\d{4}$/)?.[0]} · {q.past.label}</span>}
+          {q.difficulty && <span className="pq-diff" title={`Difficulty ${q.difficulty}/3`}>{'●'.repeat(q.difficulty)}<i>{'●'.repeat(3 - q.difficulty)}</i></span>}
+          {q.indo && <><span className="grow" /><LangSwitch lang={lang} setLang={setLang} /></>}
+        </div>
+      )}
+      {!hideMeta && (() => { const c = PAST_CONTEXT.get(q0.id); const t = c && ((lang === 'id' ? c.introId : c.intro) ?? c.intro); return t ? <div className="pp-intro pq-ctx"><Md>{t}</Md></div> : null })()}
       <div className="pq-stem"><Md>{q.stem}</Md></div>
-      {q.kind === 'mcq' && <McqView {...props} q={q} />}
-      {q.kind === 'numeric' && <NumView {...props} q={q} />}
-      {q.kind === 'widget' && <WidgetView {...props} q={q} />}
+      {mode === 'learn' && <HintLadder hints={L.hints} work={L.work} lang={lang} resetKey={q0.id} />}
+      {q.kind === 'mcq' && <McqView {...vp} q={q} />}
+      {q.kind === 'numeric' && <NumView {...vp} q={q} />}
+      {q.kind === 'widget' && <WidgetView {...vp} q={q} />}
+      {q.kind === 'open' && <OpenView {...vp} q={q} lang={lang} />}
     </div>
+  )
+}
+
+/* ---------- free response: write → compare with model answer → self-grade ---------- */
+const OT = {
+  en: { ph: 'Write your working and answer here (scratch space; not graded automatically)…', reveal: 'Compare with model answer', model: 'Model answer', how: 'How did you do?', got: 'Got it', part: 'Partly', miss: 'Missed it', saved: 'Self-graded' },
+  id: { ph: 'Tulis jawaban dan cara pengerjaanmu di sini…', reveal: 'Bandingkan dengan kunci jawaban', model: 'Kunci jawaban', how: 'Bagaimana hasilmu?', got: 'Benar', part: 'Sebagian', miss: 'Salah', saved: 'Dinilai sendiri' },
+}
+function OpenView({ q, mode, initial, onSubmit, onNext, nextLabel, lang }: Props & { q: OpenQ; lang: 'en' | 'id' }) {
+  const init = initial?.answer.k === 'open' ? initial.answer : undefined
+  const [text, setText] = useState(init?.text ?? '')
+  const [shown, setShown] = useState(mode === 'review' || init?.self != null)
+  const [self, setSelf] = useState<number | undefined>(init?.self)
+  const t = OT[lang]
+  const review = mode === 'review'
+  const grade = (v: number) => { setSelf(v); onSubmit({ correct: v === 1, score: v, answer: { k: 'open', text, self: v } }) }
+  return (
+    <>
+      <ScriptArea className="pq-open" value={text} onChange={setText} placeholder={t.ph} disabled={review} rows={4} />
+      {!shown && <div className="pq-actions"><button className="btn primary" onClick={() => setShown(true)}>{t.reveal}</button></div>}
+      {shown && (
+        <div className="pq-model"><h4>{t.model}</h4><Md>{q.answer}</Md></div>
+      )}
+      {shown && !review && (
+        <div className="pq-actions pq-self">
+          <span className="muted">{t.how}</span>
+          {([[1, t.got, 'ok'], [0.5, t.part, 'warn'], [0, t.miss, 'err']] as const).map(([v, l, c]) => (
+            <button key={v} className={'btn sm pq-sg ' + c + (self === v ? ' on' : '')} onClick={() => grade(v)}>{l}</button>
+          ))}
+        </div>
+      )}
+      {shown && self != null && <Resolution q={q} ok={self === 1} title={`${t.saved}: ${self === 1 ? t.got : self === 0.5 ? t.part : t.miss}`} skipped={self === 0.5} onNext={review ? undefined : onNext} nextLabel={nextLabel} />}
+    </>
   )
 }
 
@@ -74,9 +124,13 @@ function Resolution({ q, ok, title, detail, onNext, nextLabel, notes, skipped }:
   )
 }
 
+/** Set to false where several questions share a page (past papers), so global shortcuts don't hit every question. */
+export const KeysCtx = createContext(true)
 function useKeys(handler: (e: KeyboardEvent) => void) {
   const ref = useRef(handler); ref.current = handler
+  const on = useContext(KeysCtx)
   useEffect(() => {
+    if (!on) return
     const f = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null
       if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return
@@ -85,7 +139,7 @@ function useKeys(handler: (e: KeyboardEvent) => void) {
     }
     window.addEventListener('keydown', f)
     return () => window.removeEventListener('keydown', f)
-  }, [])
+  }, [on])
 }
 
 /* ---------- MCQ ---------- */

@@ -18,7 +18,7 @@ export function Bar({ value, color, label, right }: { value: number; color?: str
 export function go(sub?: string) { location.hash = '#/practice' + (sub ? '/' + sub : '') }
 
 /** One-shot hand-off between pages (Progress → Quiz/Drill). Not under chem.* so it is not exported. */
-export interface Preset { lecture?: LectureId; topic?: string; gens?: string[]; flaggedOnly?: boolean }
+export interface Preset { lecture?: LectureId; topic?: string; gens?: string[]; flaggedOnly?: boolean; source?: 'past' }
 export function setPreset(p: Preset) { try { sessionStorage.setItem('practice.preset', JSON.stringify(p)) } catch { /* ignore */ } }
 export function takePreset(): Preset | null {
   try { const s = sessionStorage.getItem('practice.preset'); if (s) { sessionStorage.removeItem('practice.preset'); return JSON.parse(s) as Preset } } catch { /* ignore */ }

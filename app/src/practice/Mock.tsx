@@ -26,7 +26,7 @@ export function buildMock(n: number, byLecture: 'even' | 'slides', bankShare = 0
   const out: Question[] = []
   for (const l of LECTURES) {
     const want = alloc[l.id]
-    const bank = shuffled(POOL_Q.filter((q) => q.lecture === l.id && (q.kind !== 'widget' || WIDGET.has(q.widget))))
+    const bank = shuffled(POOL_Q.filter((q) => q.lecture === l.id && q.kind !== 'open' && (q.kind !== 'widget' || WIDGET.has(q.widget))))
     const widgets = bank.filter((q) => q.kind === 'widget')
     const nonW = bank.filter((q) => q.kind !== 'widget')
     const fromBank = [...nonW.slice(0, Math.round(want * bankShare)), ...widgets.slice(0, want >= 5 ? 1 : 0)].slice(0, want)

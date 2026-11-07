@@ -10,11 +10,11 @@ import { go, takePreset } from './ui'
 import { IconChevronLeft, IconArrowRight } from '../lib/icons'
 
 interface Setup {
-  lectures: LectureId[]; topics: string[]; source: 'both' | 'slide' | 'generated'; kinds: string[]
+  lectures: LectureId[]; topics: string[]; source: 'both' | 'slide' | 'generated' | 'past'; kinds: string[]
   count: number; shuffle: boolean; mode: 'learn' | 'test'; flaggedOnly: boolean; topUp: boolean
 }
-const DEFAULT: Setup = { lectures: ['L7', 'L8', 'L9', 'L10'], topics: [], source: 'both', kinds: ['mcq', 'numeric', 'widget'], count: 10, shuffle: true, mode: 'learn', flaggedOnly: false, topUp: true }
-const KIND_LABEL: Record<string, string> = { mcq: 'Multiple choice', numeric: 'Numeric', widget: 'Interactive workbench' }
+const DEFAULT: Setup = { lectures: ['L7', 'L8', 'L9', 'L10'], topics: [], source: 'both', kinds: ['mcq', 'numeric', 'widget', 'open'], count: 10, shuffle: true, mode: 'learn', flaggedOnly: false, topUp: true }
+const KIND_LABEL: Record<string, string> = { mcq: 'Multiple choice', numeric: 'Numeric', widget: 'Interactive workbench', open: 'Written (self-check)' }
 
 interface Run { key: number; title: string; qs: Question[]; mode: 'learn' | 'test' }
 
@@ -32,7 +32,7 @@ function QuizSetup({ onStart }: { onStart: (title: string, qs: Question[], mode:
   const store = usePStore()
   useEffect(() => {
     const p = takePreset()
-    if (p) setS((x) => ({ ...x, lectures: p.lecture ? [p.lecture] : x.lectures, topics: p.topic ? [p.topic] : [], flaggedOnly: !!p.flaggedOnly, source: 'both', kinds: ['mcq', 'numeric', 'widget'] }))
+    if (p) setS((x) => ({ ...x, lectures: p.lecture ? [p.lecture] : x.lectures, topics: p.topic ? [p.topic] : [], flaggedOnly: !!p.flaggedOnly, source: p.source ?? 'both', ...(p.source ? { lectures: ['L7', 'L8', 'L9', 'L10'] as LectureId[] } : {}), kinds: ['mcq', 'numeric', 'widget', 'open'] }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const set = <K extends keyof Setup>(k: K, v: Setup[K]) => setS((x) => ({ ...x, [k]: v }))
@@ -43,7 +43,7 @@ function QuizSetup({ onStart }: { onStart: (title: string, qs: Question[], mode:
   const matching = useMemo(() => POOL_Q.filter((q) =>
     s.lectures.includes(q.lecture) && (!s.topics.length || s.topics.includes(q.topic)) && (s.source === 'both' || q.source === s.source) &&
     s.kinds.includes(q.kind) && (!s.flaggedOnly || store.flagged.includes(q.id))), [s, store.flagged])
-  const gens = useMemo(() => GENERATORS.filter((g) => s.lectures.includes(g.lecture) && (!s.topics.length || s.topics.includes(g.topic)) && s.source !== 'slide'), [s])
+  const gens = useMemo(() => GENERATORS.filter((g) => s.lectures.includes(g.lecture) && (!s.topics.length || s.topics.includes(g.topic)) && s.source !== 'slide' && s.source !== 'past'), [s])
 
   const start = () => {
     let qs = s.shuffle ? shuffled(matching) : [...matching]
@@ -84,7 +84,7 @@ function QuizSetup({ onStart }: { onStart: (title: string, qs: Question[], mode:
               {!topics.length && <span className="muted">Select a lecture first.</span>}
             </div></div>
           <div className="pr-field"><label>Source</label>
-            <div className="seg">{([['both', 'Both'], ['slide', 'Slide exercises'], ['generated', 'Generated']] as const).map(([v, l]) => <button key={v} className={s.source === v ? 'on' : ''} onClick={() => set('source', v)}>{l}</button>)}</div></div>
+            <div className="seg">{([['both', 'All'], ['slide', 'Slide exercises'], ['past', 'Past quizzes'], ['generated', 'Generated']] as const).map(([v, l]) => <button key={v} className={s.source === v ? 'on' : ''} onClick={() => set('source', v)}>{l}</button>)}</div></div>
           <div className="pr-field"><label>Question types</label>
             <div className="row">{Object.entries(KIND_LABEL).map(([k, l]) => (
               <label key={k} className="pr-check"><input type="checkbox" checked={s.kinds.includes(k)} onChange={() => set('kinds', toggle(s.kinds, k))} /> {l}</label>))}</div></div>

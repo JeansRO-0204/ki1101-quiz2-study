@@ -84,16 +84,27 @@ export interface Lecture {
 }
 
 /* ---------- practice ---------- */
+/** Indonesian text for a question (past quizzes are originally in Indonesian). Any field left out falls back to English. */
+export interface QIndo { stem?: string; options?: string[]; explanation?: string; hints?: string[]; work?: string[]; answer?: string }
+
 interface QBase {
   id: string
   lecture: LectureId
   topic: string
-  /** 'slide' = verbatim from a "Your Turn!" / "Learning Check" slide; 'generated' otherwise */
-  source: 'slide' | 'generated'
+  /** 'slide' = verbatim from a "Your Turn!" / "Learning Check" slide; 'past' = from a past KI1101 quiz; 'generated' otherwise */
+  source: 'slide' | 'generated' | 'past'
   slides?: number[]
   stem: string // markdown + KaTeX
   explanation: string // markdown + KaTeX, worked solution
   difficulty?: 1 | 2 | 3
+  /** Progressive hints, revealed one at a time: nudges toward the method, never the final answer. */
+  hints?: string[]
+  /** Worked solution as ordered steps, revealed one at a time. If absent, the UI splits `explanation` into steps. */
+  work?: string[]
+  /** Indonesian version of the text fields. */
+  indo?: QIndo
+  /** Past-quiz provenance. */
+  past?: { paper: string; label: string; points?: number }
 }
 export interface MCQ extends QBase { kind: 'mcq'; options: string[]; answer: number[] }
 export interface NumericQ extends QBase {
@@ -106,6 +117,34 @@ export interface NumericQ extends QBase {
   steps?: { prompt: string; answer: number; unit?: string; tol?: { rel?: number; abs?: number } }[]
 }
 export interface WidgetQ extends QBase { kind: 'widget'; widget: keyof Tasks; task: Tasks[keyof Tasks] }
-export type Question = MCQ | NumericQ | WidgetQ
+/** Free-response question: learner writes their answer, then compares with the model answer and self-grades. */
+export interface OpenQ extends QBase { kind: 'open'; /** model answer, markdown */ answer: string }
+export type Question = MCQ | NumericQ | WidgetQ | OpenQ
+
+/** One numbered problem (SOAL) of a past quiz; each sub-part (a, b, c…) is a Question. */
+export interface PastProblem {
+  n: number
+  points?: number
+  /** shared problem text above the parts (data, figures described in words), EN + ID */
+  intro?: string
+  introId?: string
+  /** true when the problem is outside L7–L10 (e.g. thermochemistry): shown in the paper, kept out of the quiz pool */
+  outOfScope?: boolean
+  parts: Question[]
+}
+export interface PastPaper {
+  id: string // e.g. 'kuis2-2025'
+  year: number
+  title: string
+  titleId: string
+  date?: string
+  minutes?: number
+  /** constants block printed on the paper, EN + ID */
+  constants?: string
+  constantsId?: string
+  /** caveats about the source (e.g. "answer key not provided; solutions are ours") */
+  note?: string
+  problems: PastProblem[]
+}
 
 export interface Flashcard { id: string; lecture: LectureId; topic: string; front: string; back: string }

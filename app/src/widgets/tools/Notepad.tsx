@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Md, useLocalState } from '../../lib/kit'
 import type { WidgetProps } from '../../types'
 import './tools.css'
+import { ScriptToggles, useScriptTyping } from '../../lib/scripts'
 
 interface Note { id: string; title: string; body: string; t: number }
 interface Store { notes: Note[]; active: string }
@@ -46,6 +47,7 @@ export default function Notepad({ compact }: WidgetProps) {
       return { notes: rest, active: rest[0].id }
     })
   }
+  const scr = useScriptTyping(ta, (body) => patch({ body }))
   const insert = (text: string) => {
     const el = ta.current
     if (!el) { patch({ body: note.body + text }); return }
@@ -86,6 +88,7 @@ export default function Notepad({ compact }: WidgetProps) {
       {view !== 'preview' && (
         <div className="np-ins">
           <div className="np-ins-row">
+            <ScriptToggles mode={scr.mode} setMode={scr.setMode} compact />
             <span className="np-lbl">sub</span>{SUB.map((c) => <button key={c} onClick={() => insert(c)}>{c}</button>)}
             <span className="np-lbl">sup</span>{SUP.map((c) => <button key={c} onClick={() => insert(c)}>{c}</button>)}
           </div>
@@ -98,7 +101,7 @@ export default function Notepad({ compact }: WidgetProps) {
       )}
       <div className={'np-panes ' + view}>
         {view !== 'preview' && (
-          <textarea ref={ta} className="np-edit" value={note.body} onChange={(e) => patch({ body: e.target.value })} spellCheck={false}
+          <textarea ref={ta} className="np-edit" value={note.body} onChange={(e) => patch({ body: e.target.value })} onKeyDown={scr.onKeyDown} spellCheck={false}
             placeholder={'Write markdown here. Use $E=h\\nu$ for inline math and $$…$$ for display math.'} />
         )}
         {view !== 'edit' && <div className="np-prev">{note.body.trim() ? <Md>{note.body}</Md> : <p className="muted">Nothing to preview yet.</p>}</div>}

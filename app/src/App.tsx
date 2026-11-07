@@ -6,11 +6,11 @@ import Practice from './practice/Practice'
 import Workspace from './workspace/Workspace'
 import { AppIcon, IconAtom, IconBook, IconChecklist, IconPanels } from './lib/icons'
 
-export type Route = { page: 'learn'; lecture: LectureId; section?: string } | { page: 'practice'; sub?: string } | { page: 'workspace' }
+export type Route = { page: 'learn'; lecture: LectureId; section?: string } | { page: 'practice'; sub?: string; arg?: string } | { page: 'workspace' }
 
 function parse(hash: string): Route {
   const [, page, a, b] = hash.replace(/^#/, '').split('/')
-  if (page === 'practice') return { page: 'practice', sub: a }
+  if (page === 'practice') return { page: 'practice', sub: a, arg: b }
   if (page === 'workspace') return { page: 'workspace' }
   const lecture = (['L7', 'L8', 'L9', 'L10'].includes(a) ? a : 'L7') as LectureId
   return { page: 'learn', lecture, section: b }
@@ -40,7 +40,7 @@ export default function App() {
         </nav>
         <main className="main">
           {route.page === 'learn' && <Learn lecture={route.lecture} section={route.section} />}
-          {route.page === 'practice' && <Practice sub={route.sub} />}
+          {route.page === 'practice' && <Practice sub={route.sub} arg={route.arg} />}
           {route.page === 'workspace' && <Workspace />}
         </main>
       </div>

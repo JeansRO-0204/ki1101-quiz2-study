@@ -12,7 +12,10 @@ Progress (quiz history, flashcards, workspace layout, notes) is saved in your br
   - Quiz: 215 questions, including every "Your Turn!"/"Learning Check" slide question word for word.
   - Drill: 21 endless randomized generators.
   - Flashcards: 125 cards (Leitner).
+  - Past quizzes: KI1101 Quiz 2 papers from 2021–2025 with every part answerable, in English and Indonesian (EN/ID switch). Out-of-scope problems are shown but kept out of the quiz pool.
   - Mock: timed 30-minute quiz.
+  - Hints: every question in Learn mode has a hint ladder. It reveals the hints first, then the worked solution one step at a time.
+  - Typing: in free-response boxes and the Notepad, `_2` gives ₂ and `^2-` gives ²⁻. ⌘= toggles subscript and ⇧⌘= toggles superscript.
   - Progress.
 - **Workspace**: a free-form canvas. Press A or double-click to add panels: any widget, plus the periodic table, notepad, equation solver and sketch pad. It has presets and saved layouts.
 
