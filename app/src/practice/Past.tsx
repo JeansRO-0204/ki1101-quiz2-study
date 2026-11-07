@@ -13,8 +13,8 @@ import { go, setPreset } from './ui'
 import { AppIcon, IconPopOut, IconChevronLeft, IconChevronRight, IconFlag, IconInfoFill } from '../lib/icons'
 
 const T = {
-  en: { title: 'Past quizzes', sub: 'Previous years’ KI1101 Quiz 2 papers with hints and worked solutions. Indonesian originals are kept: switch with EN / ID.', problems: 'problems', parts: 'parts', min: 'min', back: 'Past quizzes', constants: 'Constants given on the paper', soal: 'Problem', pts: 'pts', oos: 'Outside L7–L10: not on your quiz', none: 'No past papers loaded yet.', done: 'answered', quiz: 'Quiz me on all past questions' },
-  id: { title: 'Kuis tahun lalu', sub: 'Soal Kuis 2 KI1101 tahun-tahun sebelumnya, lengkap dengan petunjuk dan pembahasan.', problems: 'soal', parts: 'bagian', min: 'menit', back: 'Kuis tahun lalu', constants: 'Tetapan yang diberikan', soal: 'Soal', pts: 'poin', oos: 'Di luar L7–L10: tidak keluar di kuis ini', none: 'Belum ada soal.', done: 'terjawab', quiz: 'Latihan semua soal tahun lalu' },
+  en: { source: 'Papers pulled from the STEI-K 25 ACADS (academic drive) site.', title: 'Past quizzes', sub: 'Previous years’ KI1101 Quiz 2 papers with hints and worked solutions. Indonesian originals are kept: switch with EN / ID.', problems: 'problems', parts: 'parts', min: 'min', back: 'Past quizzes', constants: 'Constants given on the paper', soal: 'Problem', pts: 'pts', oos: 'Outside L7–L10: not on your quiz', none: 'No past papers loaded yet.', done: 'answered', quiz: 'Quiz me on all past questions' },
+  id: { source: 'Soal diambil dari situs ACADS (academic drive) STEI-K 25.', title: 'Kuis tahun lalu', sub: 'Soal Kuis 2 KI1101 tahun-tahun sebelumnya, lengkap dengan petunjuk dan pembahasan.', problems: 'soal', parts: 'bagian', min: 'menit', back: 'Kuis tahun lalu', constants: 'Tetapan yang diberikan', soal: 'Soal', pts: 'poin', oos: 'Di luar L7–L10: tidak keluar di kuis ini', none: 'Belum ada soal.', done: 'terjawab', quiz: 'Latihan semua soal tahun lalu' },
 }
 
 export default function Past({ arg }: { arg?: string }) {
@@ -37,6 +37,7 @@ function PaperList() {
         <LangSwitch lang={lang} setLang={setLang} />
       </div>
       <p className="muted">{t.sub}</p>
+      <div className="pp-note"><IconInfoFill size={16} /><span>{t.source}</span></div>
       {!PAST_PAPERS.length && <div className="pr-empty">{t.none}</div>}
       <div className="pp-list">
         {PAST_PAPERS.map((p) => {
@@ -87,6 +88,7 @@ export function Paper({ paper, embedded }: { paper: PastPaper; embedded?: boolea
           <LangSwitch lang={lang} setLang={setLang} />
         </div>
       </div>
+      <div className="pp-note"><IconInfoFill size={16} /><span>{t.source}</span></div>
       {paper.note && <div className="pp-note"><IconInfoFill size={16} /><span>{paper.note}</span></div>}
       {(paper.constants || paper.constantsId) && (
         <details className="pp-const">

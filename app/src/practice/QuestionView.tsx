@@ -1,5 +1,6 @@
 // Renders and grades a single question (mcq / numeric with steps / widget). Used by Quiz, Drill and Mock.
 import { Suspense, createContext, useContext, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
+import { AiNote } from './AiNote'
 import { Feedback, Md, NumInput, SlideRef, Step, Verdict, parseNum, sci, within, type Note } from '../lib/kit'
 import { WIDGET } from '../registry'
 import type { MCQ, NumericQ, OpenQ, OrderQ, Question, ShortQ, WidgetQ, WidgetProps, WidgetResult } from '../types'
@@ -79,6 +80,7 @@ export default function QuestionView(props: Props & { hideMeta?: boolean }) {
       )}
       {!hideMeta && (() => { const c = PAST_CONTEXT.get(q0.id); const t = c && ((lang === 'id' ? c.introId : c.intro) ?? c.intro); return c ? <><PastFigures figs={c.figures} lang={lang} />{t && <div className="pp-intro pq-ctx"><Md>{t}</Md></div>}</> : null })()}
       <div className="pq-stem"><Md>{q.stem}</Md></div>
+      <AiNote kind={q0.source === 'slide' || q0.source === 'past' || q0.past ? 'answer' : 'problem'} />
       {mode === 'learn' && <HintLadder hints={L.hints} work={L.work} lang={lang} resetKey={q0.id} />}
       {canPaper && mode !== 'review' && (
         <div className="pq-paper-sw">

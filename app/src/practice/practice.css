@@ -303,3 +303,10 @@ button.pq-ord-chip { cursor: pointer; transition: transform .1s, border-color .1
 .qq-lec.on { background: color-mix(in srgb, var(--c) 15%, #fff); border-color: var(--c); color: color-mix(in srgb, var(--c) 80%, black); }
 .qq-body { padding: 14px 16px; }
 .qq-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+
+/* AI-assistance disclaimer */
+.ai-note { margin: 4px 0 10px; font-size: 12.5px; color: var(--muted); }
+.ai-note summary { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; list-style: none; user-select: none; }
+.ai-note summary::-webkit-details-marker { display: none; }
+.ai-note summary:hover { color: var(--accent); }
+.ai-note p { margin: 6px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--soft); color: #3c3c43; line-height: 1.45; }
