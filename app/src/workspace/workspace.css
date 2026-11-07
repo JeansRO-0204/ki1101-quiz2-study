@@ -152,3 +152,6 @@ kbd { background: #fff; border-color: rgba(60, 60, 67, .22); }
   .ws-inkbar .ink-pal > * { flex: none; }
   .ws-menu { max-width: calc(100vw - 24px); }
 }
+
+.ws.drawing, .ws.drawing .ws-panel, .ws.drawing .ws-body { cursor: crosshair; }
+.ws.drawing.erase, .ws.drawing.erase .ws-panel, .ws.drawing.erase .ws-body { cursor: cell; }

@@ -291,6 +291,15 @@ export default function Workspace() {
       gesture.current = { kind: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, v, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 }
     } else gesture.current = null
   }
+  /* Draw mode: grab drawing input before panels see it. Pencil and mouse/trackpad (incl. Sidecar) draw on top of
+     everything; fingers draw only until a Pencil has been seen, after that they reach panels (buttons, scrolling) as usual. */
+  const onDrawCapture = (e: React.PointerEvent) => {
+    if (!drawMode) return
+    const t = e.target as Element
+    if (t.closest('.ws-bar') || t.closest('.ws-menu') || t.closest('.ws-modal') || t.closest('.ink-pal') || t.closest('.ws-lights')) return
+    if (e.pointerType === 'touch' && penSeen()) return
+    inkDown(e)
+  }
   const onBgDown = (e: React.PointerEvent) => {
     const t = e.target as Element
     if (t.closest('.ws-panel') || t.closest('.ws-bar') || t.closest('.ws-modal') || t.closest('.ws-menu') || t.closest('.ink-pal')) return
@@ -430,7 +439,7 @@ export default function Workspace() {
   const presets = PRESETS.map((p) => ({ ...p, have: p.ids.filter((i) => WIDGET.has(i)) })).filter((p) => p.have.length > 0)
 
   return (
-    <div className="ws" ref={boxRef} onPointerDown={onBgDown} onPointerMove={onBgMove} onPointerUp={onBgUp} onPointerCancel={onBgUp}
+    <div className={'ws' + (drawMode ? ' drawing' + (inkTool.kind === 'erase' ? ' erase' : '') : '')} ref={boxRef} onPointerDownCapture={onDrawCapture} onPointerDown={onBgDown} onPointerMove={onBgMove} onPointerUp={onBgUp} onPointerCancel={onBgUp}
       onDoubleClick={openAt} onContextMenu={openAt}
       style={{ backgroundSize: `${24 * view.k}px ${24 * view.k}px`, backgroundPosition: `${view.x}px ${view.y}px` }}>
       <div className="ws-world" style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})` }}>
@@ -455,7 +464,6 @@ export default function Workspace() {
         </div>
       )}
 
-      {drawMode && <div className={'ws-ink-catch' + (inkTool.kind === 'erase' ? ' erase' : '')} onPointerDown={(e) => { inkDown(e) }} onPointerMove={inkIn.onPointerMove} onPointerUp={inkIn.onPointerUp} onPointerCancel={inkIn.onPointerUp} onDoubleClick={(e) => e.stopPropagation()} onContextMenu={(e) => e.preventDefault()} />}
       {(drawMode || penUsed || ink.length > 0) && (
         <div className={'ws-inkbar' + (drawMode ? ' on' : '')}>
           <InkPalette vertical tool={inkTool} setTool={(t) => { setInkTool(t); if (!penUsed) setDrawMode(true) }} undo={inkHist.undo} redo={inkHist.redo} canUndo={inkHist.canUndo} canRedo={inkHist.canRedo} onClear={() => inkHist.change(() => [])} />
