@@ -18,6 +18,8 @@ Progress (quiz history, flashcards, workspace layout, notes) is saved in your br
   - Typing: in free-response boxes and the Notepad, `_2` gives ₂ and `^2-` gives ²⁻. ⌘= toggles subscript and ⇧⌘= toggles superscript.
   - Progress.
 - **Workspace**: a free-form canvas. Press A or double-click to add panels: any widget, plus the periodic table, notepad, equation solver and sketch pad. It has presets and saved layouts.
+  - Ink: with Apple Pencil on iPad, write straight on the empty canvas while fingers pan and zoom. **Draw** (D) lifts the ink above all panels like a smartboard, and mouse, trackpad and Sidecar Pencil draw while it's on. Undo is ⌘Z.
+  - Scratchpad panel: handwriting pages (grid, lined or blank) with pressure ink, highlighter and eraser. There's no handwriting recognition; ink stays in the browser.
 
 ## Layout
 - `materials_7-10/`: lecture PDFs.

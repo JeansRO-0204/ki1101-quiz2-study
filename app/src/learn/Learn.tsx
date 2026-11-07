@@ -30,6 +30,13 @@ export default function Learn({ lecture, section }: { lecture: LectureId; sectio
         ))}
       </aside>
       <div className="learn-main">
+        <nav className="learn-mnav" aria-label="Lectures and sections">
+          <div className="learn-mlecs">{LECTURES.map((l) => <a key={l.id} href={`#/learn/${l.id}`} className={l.id === lecture ? 'on' : ''} style={{ ['--c' as string]: l.color }}>{l.id.replace('L', '')}. {l.title}</a>)}</div>
+          <select className="field" value={section ?? ''} onChange={(e) => { location.hash = `#/learn/${lecture}${e.target.value ? '/' + e.target.value : ''}` }} aria-label="Jump to section">
+            <option value="">Jump to section…</option>
+            {L.sections.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+          </select>
+        </nav>
         <header className="lec-banner" style={{ ['--c' as string]: meta.color }}>
           <small>Lecture {lecture.replace('L', '')}</small>
           <h1>{L.title || meta.title}</h1>

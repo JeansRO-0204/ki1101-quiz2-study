@@ -123,3 +123,32 @@ kbd { font-family: var(--mono); font-size: 12px; background: #fff; border: 1px s
 .ws-empty-card .app-ic { margin-bottom: 4px; }
 .ws-empty-card b { font-size: 20px; letter-spacing: -.02em; }
 kbd { background: #fff; border-color: rgba(60, 60, 67, .22); }
+
+/* ---------- ink layer ---------- */
+.ws-ink { position: absolute; left: 0; top: 0; overflow: visible; z-index: 0; pointer-events: none; }
+.ws-ink.top { z-index: 150000; }
+.ws-ink-catch { position: absolute; inset: 0; z-index: 160000; cursor: crosshair; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.ws-ink-catch.erase { cursor: cell; }
+.ws-inkbar { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 200001; opacity: .9; transition: opacity .15s; }
+.ws-inkbar:not(.on) { opacity: .75; } .ws-inkbar:hover { opacity: 1; }
+.ws-inkbar.on .ink-pal { box-shadow: 0 0 0 2px var(--accent), 0 8px 24px rgba(0, 0, 0, .12); }
+
+/* ---------- one-line toolbar (scrolls sideways when it overflows) ---------- */
+.ws-bar { flex-wrap: nowrap; padding: 0; max-width: calc(100% - 24px); }
+.ws-bar-row { display: flex; align-items: center; gap: 6px; padding: 6px 8px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.ws-bar-row::-webkit-scrollbar { display: none; }
+.ws-bar-row > * { flex: none; }
+.ws-bar-row.fade-r { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+.ws-bar-row.fade-l { -webkit-mask-image: linear-gradient(to right, transparent, #000 28px); mask-image: linear-gradient(to right, transparent, #000 28px); }
+.ws-bar-row.fade-l.fade-r { -webkit-mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent); }
+.ws-bar > .ws-menu { top: calc(100% + 8px); }
+
+/* ---------- phones ---------- */
+@media (max-width: 700px) {
+  .ws-bar { top: 8px; }
+  .ws-inkbar { left: 50%; top: auto; bottom: 10px; transform: translateX(-50%); max-width: calc(100% - 20px); }
+  .ws-inkbar .ink-pal.vert { flex-direction: row; overflow-x: auto; scrollbar-width: none; }
+  .ws-inkbar .ink-pal.vert .ink-sep { width: 1px; height: 18px; margin: 0 3px; }
+  .ws-inkbar .ink-pal > * { flex: none; }
+  .ws-menu { max-width: calc(100vw - 24px); }
+}

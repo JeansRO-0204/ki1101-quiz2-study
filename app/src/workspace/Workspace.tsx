@@ -1,7 +1,9 @@
 // Workspace: a free-form pannable/zoomable canvas of window-like widget panels. Owned by the workspace agent.
 import { Component, Suspense, memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { WIDGET, WIDGETS } from '../registry'
-import { PanelIdCtx } from '../lib/kit'
+import { PanelIdCtx, useLocalState } from '../lib/kit'
+import { IconPencil } from '../lib/icons'
+import { InkPaths, InkPalette, PEN_COLORS, WIDTHS, penSeen, useInk, useInkHistory, type InkTool, type Stroke } from '../lib/ink'
 import { LECTURES } from '../types'
 import { AppIcon, IconChevronDown, IconFit, IconLayers, IconMagnet, IconMaximize, IconMinus, IconPanels, IconPlus, IconReset, IconRestore, IconX } from '../lib/icons'
 import './workspace.css'
@@ -46,7 +48,7 @@ function loadInitial(): Layout {
       if (typeof wid !== 'string' || !WIDGET.has(wid)) return
       const s = sizeOf(wid)
       const left = -view.x / view.k + 12, top = -view.y / view.k + 12
-      added.push({ id: uid() + i, widgetId: wid, w: s.w, h: s.h, z: ++z,
+      added.push({ id: uid() + i, widgetId: wid, w: s.w, h: s.h, z: ++z, max: W < 700,
         x: Math.round(Math.max(left, cx - s.w / 2) + i * 28), y: Math.round(Math.max(top, cy - s.h / 2) + i * 28) })
     })
     layout.panels = [...panels, ...added]
@@ -209,6 +211,21 @@ export default function Workspace() {
   const sizeRef = useRef(size); sizeRef.current = size
   const panelsRef = useRef(panels); panelsRef.current = panels
 
+  /* ink: one layer in world space. Behind panels normally (Pencil on empty canvas writes, fingers pan);
+     Draw mode lifts it above every panel (smartboard) and lets mouse / trackpad / Sidecar Pencil draw too. */
+  const [ink, setInk] = useState<Stroke[]>(() => readJSON<Stroke[]>('ws.ink', []))
+  useEffect(() => { const t = setTimeout(() => { try { localStorage.setItem('ws.ink', JSON.stringify(ink)) } catch { /* ignore */ } }, 400); return () => clearTimeout(t) }, [ink])
+  const inkHist = useInkHistory(ink, setInk)
+  const [inkTool, setInkTool] = useLocalState<InkTool>('ink.tool', { kind: 'pen', color: PEN_COLORS[0], w: WIDTHS[1] })
+  const [drawMode, setDrawMode] = useState(false)
+  const [penUsed, setPenUsed] = useState(penSeen())
+  const inkToLocal = useCallback((cx: number, cy: number): [number, number] => {
+    const r = boxRef.current!.getBoundingClientRect(), v = viewRef.current
+    return [(cx - r.left - v.x) / v.k, (cy - r.top - v.y) / v.k]
+  }, [])
+  const inkIn = useInk({ setStrokes: inkHist.change, tool: inkTool, toLocal: inkToLocal, scale: 1 / view.k })
+  const inkDown = (e: React.PointerEvent) => { if (e.pointerType === 'pen' && !penUsed) setPenUsed(true); return inkIn.onPointerDown(e) }
+
   useEffect(() => { try { localStorage.removeItem('ws.pending') } catch { /* ignore */ } }, [])
   useEffect(() => {
     const t = setTimeout(() => { try { localStorage.setItem('ws.layout', JSON.stringify({ panels, view, snap })) } catch { /* ignore */ } }, 250)
@@ -238,14 +255,28 @@ export default function Workspace() {
     const el = boxRef.current; if (!el) return
     const onWheel = (e: WheelEvent) => {
       const t = e.target as Element
-      if (t.closest('.ws-body') || t.closest('.ws-modal') || t.closest('.ws-bar')) return
+      if (t.closest('.ws-modal')) return
+      // trackpad pinch (= ctrl+wheel) always zooms the Workspace, even over a panel, instead of the browser page;
+      // plain scrolling over a panel still scrolls that panel
+      if (!e.ctrlKey && (t.closest('.ws-body') || t.closest('.ws-bar'))) return
       e.preventDefault()
       const r = el.getBoundingClientRect()
       const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY
       zoomAt(Math.exp(-d * (e.ctrlKey ? 0.01 : 0.0016)), e.clientX - r.left, e.clientY - r.top)
     }
     el.addEventListener('wheel', onWheel, { passive: false })
-    return () => el.removeEventListener('wheel', onWheel)
+    // Safari (macOS) sends pinch as gesture events: stop page zoom and zoom the Workspace instead
+    let g0 = 1
+    const gs = (e: Event) => { e.preventDefault(); g0 = 1 }
+    const gc = (e: Event) => {
+      e.preventDefault()
+      const ge = e as Event & { scale: number; clientX: number; clientY: number }
+      const r = el.getBoundingClientRect()
+      zoomAt(ge.scale / g0, (ge.clientX ?? r.width / 2 + r.left) - r.left, (ge.clientY ?? r.height / 2 + r.top) - r.top); g0 = ge.scale
+    }
+    el.addEventListener('gesturestart', gs, { passive: false } as AddEventListenerOptions)
+    el.addEventListener('gesturechange', gc, { passive: false } as AddEventListenerOptions)
+    return () => { el.removeEventListener('wheel', onWheel); el.removeEventListener('gesturestart', gs); el.removeEventListener('gesturechange', gc) }
   }, [zoomAt])
 
   /* pan (1 pointer) / pinch (2 pointers) on empty background */
@@ -262,7 +293,8 @@ export default function Workspace() {
   }
   const onBgDown = (e: React.PointerEvent) => {
     const t = e.target as Element
-    if (t.closest('.ws-panel') || t.closest('.ws-bar') || t.closest('.ws-modal') || t.closest('.ws-menu')) return
+    if (t.closest('.ws-panel') || t.closest('.ws-bar') || t.closest('.ws-modal') || t.closest('.ws-menu') || t.closest('.ink-pal')) return
+    if (e.pointerType === 'pen' && !drawMode && inkDown(e)) return // Pencil writes straight onto the canvas
     if (e.button !== 0 && e.pointerType === 'mouse') return
     setMenu(false)
     ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
@@ -271,6 +303,7 @@ export default function Workspace() {
     boxRef.current?.classList.add('panning')
   }
   const onBgMove = (e: React.PointerEvent) => {
+    inkIn.onPointerMove(e)
     if (!ptrs.current.has(e.pointerId)) return
     ptrs.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
     const g = gesture.current; if (!g) return
@@ -288,6 +321,7 @@ export default function Workspace() {
     }
   }
   const onBgUp = (e: React.PointerEvent) => {
+    inkIn.onPointerUp(e)
     ptrs.current.delete(e.pointerId)
     startGesture()
     if (!ptrs.current.size) boxRef.current?.classList.remove('panning')
@@ -306,7 +340,8 @@ export default function Workspace() {
     setPanels((ps) => {
       const z = Math.max(0, ...ps.map((p) => p.z)) + 1
       const x = snapv(Math.round(c.x - s.w / 2 + (at ? 0 : n * 24)), snap), y = snapv(Math.round(c.y - s.h / 2 + (at ? 0 : n * 24)), snap)
-      return [...ps, { id: uid(), widgetId, x, y, w: s.w, h: s.h, z }]
+      // phones: panels wider than the screen open full-screen (restore with the green button)
+      return [...ps, { id: uid(), widgetId, x, y, w: s.w, h: s.h, z, max: sizeRef.current.w < 700 }]
     })
     setLaunch(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -356,12 +391,27 @@ export default function Workspace() {
     setSaved((s) => [...s.filter((x) => x.name !== name), item]); setSaveName('')
   }
 
+  /* toolbar: one line; scrolls sideways when it overflows, with edge fades showing there is more */
+  const barRow = useRef<HTMLDivElement>(null)
+  const [barFade, setBarFade] = useState('')
+  const [menuX, setMenuX] = useState(0)
+  const updBar = useCallback(() => {
+    const r = barRow.current; if (!r) return
+    const f = (r.scrollLeft > 2 ? ' fade-l' : '') + (r.scrollLeft + r.clientWidth < r.scrollWidth - 2 ? ' fade-r' : '')
+    setBarFade((x) => (x === f ? x : f)); setMenu(false)
+  }, [])
+  useEffect(() => { updBar(); const r = barRow.current; if (!r) return; const ro = new ResizeObserver(updBar); ro.observe(r); return () => ro.disconnect() }, [updBar])
+
   /* keyboard */
+  const inkUndo = useRef(inkHist); inkUndo.current = inkHist
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { setLaunch(null); setMenu(false); return }
+      if (e.key === 'Escape') { setLaunch(null); setMenu(false); setDrawMode(false); return }
       const t = e.target as HTMLElement
       if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return
+      if (t && t.closest?.('.ws-body')) return
+      if ((e.key === 'd' || e.key === 'D') && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); setDrawMode((m) => !m); return }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) inkUndo.current.redo(); else inkUndo.current.undo(); return }
       if ((e.key === 'a' || e.key === 'A') && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); setLaunch({}) }
     }
     window.addEventListener('keydown', k)
@@ -384,6 +434,7 @@ export default function Workspace() {
       onDoubleClick={openAt} onContextMenu={openAt}
       style={{ backgroundSize: `${24 * view.k}px ${24 * view.k}px`, backgroundPosition: `${view.x}px ${view.y}px` }}>
       <div className="ws-world" style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.k})` }}>
+        <svg className={'ws-ink' + (drawMode ? ' top' : '')} width="1" height="1" aria-hidden><InkPaths strokes={ink} live={inkIn.live} /></svg>
         {panels.map((p) => (
           <PanelWin key={p.id} p={p} k={view.k} vw={size.w} vh={size.h} vx={p.max ? view.x : 0} vy={p.max ? view.y : 0} snap={snap} top={p.z === topZ}
             onFocus={onFocus} onChange={onChange} onClose={onClose} />
@@ -404,12 +455,30 @@ export default function Workspace() {
         </div>
       )}
 
+      {drawMode && <div className={'ws-ink-catch' + (inkTool.kind === 'erase' ? ' erase' : '')} onPointerDown={(e) => { inkDown(e) }} onPointerMove={inkIn.onPointerMove} onPointerUp={inkIn.onPointerUp} onPointerCancel={inkIn.onPointerUp} onDoubleClick={(e) => e.stopPropagation()} onContextMenu={(e) => e.preventDefault()} />}
+      {(drawMode || penUsed || ink.length > 0) && (
+        <div className={'ws-inkbar' + (drawMode ? ' on' : '')}>
+          <InkPalette vertical tool={inkTool} setTool={(t) => { setInkTool(t); if (!penUsed) setDrawMode(true) }} undo={inkHist.undo} redo={inkHist.redo} canUndo={inkHist.canUndo} canRedo={inkHist.canRedo} onClear={() => inkHist.change(() => [])} />
+        </div>
+      )}
       <div className="ws-bar" onDoubleClick={(e) => e.stopPropagation()}>
+        <div className={'ws-bar-row' + barFade} ref={barRow} onScroll={updBar}>
         <button className="btn primary sm" onClick={() => setLaunch({})} title="Add panel (A)"><IconPlus size={14} style={{ strokeWidth: 2.4 }} />Add panel</button>
         <div className="ws-menu-wrap">
-          <button className={'btn sm' + (menu ? ' on' : '')} onClick={() => setMenu((m) => !m)}><IconLayers size={14} />Layouts<IconChevronDown size={11} style={{ strokeWidth: 2.4 }} /></button>
+          <button className={'btn sm' + (menu ? ' on' : '')} onClick={(e) => { const b = e.currentTarget.getBoundingClientRect(), bar = e.currentTarget.closest('.ws-bar')!.getBoundingClientRect(); setMenuX(b.left - bar.left); setMenu((m) => !m) }}><IconLayers size={14} />Layouts<IconChevronDown size={11} style={{ strokeWidth: 2.4 }} /></button>
+        </div>
+        <button className={'btn sm' + (drawMode ? ' on' : '')} onClick={() => setDrawMode((m) => !m)} title="Draw over everything, like a smartboard (D). Mouse, trackpad and Sidecar Pencil draw while this is on; Apple Pencil on iPad can always write on the empty canvas."><IconPencil size={14} />{drawMode ? 'Drawing' : 'Draw'}</button>
+        <span className="ws-sep" />
+        <button className={'btn sm' + (snap ? ' on' : '')} onClick={() => setSnap((s) => !s)} title="Snap panels to an 8 px grid"><IconMagnet size={14} />Snap</button>
+        <span className="ws-sep" />
+        <button className="btn sm ico" onClick={() => zoomCentre(1 / 1.2)} title="Zoom out" aria-label="Zoom out"><IconMinus size={14} /></button>
+        <button className="btn sm ws-zoom" onClick={() => setView((v) => ({ ...v, k: 1 }))} title="Zoom to 100%">{Math.round(view.k * 100)}%</button>
+        <button className="btn sm ico" onClick={() => zoomCentre(1.2)} title="Zoom in" aria-label="Zoom in"><IconPlus size={14} /></button>
+        <button className="btn sm" onClick={() => fit(panels.filter((p) => !p.min))} disabled={!panels.length} title="Fit all panels in view"><IconFit size={14} />Fit</button>
+        <button className="btn sm" onClick={() => setView({ x: 0, y: 0, k: 1 })} title="Reset view"><IconReset size={14} />Reset view</button>
+        </div>
           {menu && (
-            <div className="ws-menu" onPointerDown={(e) => e.stopPropagation()}>
+            <div className="ws-menu" style={{ left: menuX }} onPointerDown={(e) => e.stopPropagation()}>
               <h5>Presets</h5>
               {presets.map((p) => (
                 <button key={p.name} className="ws-menu-item" onClick={() => applyPreset(p.ids)}>
@@ -431,15 +500,6 @@ export default function Workspace() {
               <button className="ws-menu-item danger" disabled={!panels.length} onClick={() => { setPanels([]); setMenu(false) }}><b>Clear desk</b><span>Close all panels</span></button>
             </div>
           )}
-        </div>
-        <span className="ws-sep" />
-        <button className={'btn sm' + (snap ? ' on' : '')} onClick={() => setSnap((s) => !s)} title="Snap panels to an 8 px grid"><IconMagnet size={14} />Snap</button>
-        <span className="ws-sep" />
-        <button className="btn sm ico" onClick={() => zoomCentre(1 / 1.2)} title="Zoom out" aria-label="Zoom out"><IconMinus size={14} /></button>
-        <button className="btn sm ws-zoom" onClick={() => setView((v) => ({ ...v, k: 1 }))} title="Zoom to 100%">{Math.round(view.k * 100)}%</button>
-        <button className="btn sm ico" onClick={() => zoomCentre(1.2)} title="Zoom in" aria-label="Zoom in"><IconPlus size={14} /></button>
-        <button className="btn sm" onClick={() => fit(panels.filter((p) => !p.min))} disabled={!panels.length} title="Fit all panels in view"><IconFit size={14} />Fit</button>
-        <button className="btn sm" onClick={() => setView({ x: 0, y: 0, k: 1 })} title="Reset view"><IconReset size={14} />Reset view</button>
       </div>
       {launch && <Launcher onPick={(id) => addPanel(id, launch.at)} onClose={() => setLaunch(null)} />}
     </div>
