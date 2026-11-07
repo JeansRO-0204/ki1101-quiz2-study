@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useState } from 'react'
 import { SlideCtx, SlideLightbox } from './lib/kit'
 import type { LectureId } from './types'
-import Learn from './learn/Learn'
-import Practice from './practice/Practice'
-import Workspace from './workspace/Workspace'
+// each top-level page is its own chunk: Materials doesn't download the question bank, Practice doesn't download the workspace…
+const Learn = lazy(() => import('./learn/Learn'))
+const Practice = lazy(() => import('./practice/Practice'))
+const Workspace = lazy(() => import('./workspace/Workspace'))
 import { AppIcon, IconAtom, IconBook, IconChecklist, IconPanels } from './lib/icons'
 
 export type Route = { page: 'learn'; lecture: LectureId; section?: string } | { page: 'practice'; sub?: string; arg?: string } | { page: 'workspace' }
@@ -38,11 +39,11 @@ export default function App() {
           </div>
           <span className="nav-gap" />
         </nav>
-        <main className="main">
+        <main className="main"><Suspense fallback={<div className="page-loading" aria-label="Loading"><i /><i /><i /></div>}>
           {route.page === 'learn' && <Learn lecture={route.lecture} section={route.section} />}
           {route.page === 'practice' && <Practice sub={route.sub} arg={route.arg} />}
           {route.page === 'workspace' && <Workspace />}
-        </main>
+        </Suspense></main>
       </div>
       <SlideLightbox at={slide} onClose={() => setSlide(null)} onNav={(n) => setSlide((s) => (s ? { ...s, n } : s))} />
     </SlideCtx.Provider>

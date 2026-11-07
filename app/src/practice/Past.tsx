@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { Md, openInWorkspace } from '../lib/kit'
 import type { PastPaper, Question } from '../types'
 import { PAST_FIGURES, PAST_PAPERS } from './bank'
+import { PAST_META } from './bank/pastMeta'
+if (import.meta.env.DEV) for (const p of PAST_PAPERS) { const m = PAST_META.find((x) => x.id === p.id); if (!m || m.title !== p.title || m.problems !== p.problems.length) console.warn('pastMeta.ts is out of sync with', p.id) }
 import { PastFigures } from './PastFigures'
 import { LangSwitch, useLang } from './Hints'
 import QuestionView, { KeysCtx, type Outcome } from './QuestionView'
