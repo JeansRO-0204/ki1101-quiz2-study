@@ -6,6 +6,7 @@ import { GENERATORS, GEN_BY_ID } from './generators'
 import QuestionView, { type Outcome } from './QuestionView'
 import { logAttempt, usePStore } from './store'
 import { go, lecColor, pct, takePreset } from './ui'
+import { IconChevronLeft } from '../lib/icons'
 
 export default function Drill() {
   const store = usePStore()
@@ -43,7 +44,7 @@ export default function Drill() {
     <div className="pr-page pr-drill">
       <div className="pr-drill-main">
         <div className="row pr-drill-top">
-          <button className="btn ghost sm" onClick={() => go()}>← Practice</button>
+          <button className="btn ghost sm" onClick={() => go()}><IconChevronLeft size={14} />Practice</button>
           <h2>Drill</h2>
           <span className="grow" />
           <div className="pr-stats">

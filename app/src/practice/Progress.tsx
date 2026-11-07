@@ -5,6 +5,7 @@ import { GENERATORS } from './generators'
 import { POOL_C, POOL_Q } from './pool'
 import { BOX_DAYS, exportAll, groupBy, importAll, isDue, proficiency, resetAll, topicStats, usePStore, weakest, type Attempt } from './store'
 import { Bar, accColor, go, lecColor, pct, setPreset } from './ui'
+import { IconChevronLeft, IconArrowRight } from '../lib/icons'
 
 /** Attempts from this module plus widget attempts logged elsewhere via recordAttempt (deduplicated). */
 export function useAllAttempts(): Attempt[] {
@@ -70,7 +71,7 @@ export default function Progress() {
 
   return (
     <div className="pr-page">
-      <div className="row"><button className="btn ghost sm" onClick={() => go()}>← Practice</button><h2>Progress</h2></div>
+      <div className="row"><button className="btn ghost sm" onClick={() => go()}><IconChevronLeft size={14} />Practice</button><h2>Progress</h2></div>
       {!atts.length && <div className="pr-banner">No attempts yet. Do a quiz or a drill and your proficiency will appear here.</div>}
       <div className="pr-cols">
         <section className="pr-card">
@@ -111,7 +112,7 @@ export default function Progress() {
           <h3>Flashcards <small className="muted">{due} due</small></h3>
           <Bar value={newCards / Math.max(1, POOL_C.length)} color="#94a3b8" label="New" right={newCards} />
           {cardCounts.map((n, i) => <Bar key={i} value={n / Math.max(1, POOL_C.length)} color="var(--accent)" label={`Box ${i + 1} · every ${BOX_DAYS[i]}d`} right={n} />)}
-          <button className="btn sm" onClick={() => go('cards')}>Review cards →</button>
+          <button className="btn sm" onClick={() => go('cards')}>Review cards<IconArrowRight size={13} /></button>
         </section>
       </div>
       <section className="pr-card">

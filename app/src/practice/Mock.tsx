@@ -6,6 +6,7 @@ import { GENERATORS } from './generators'
 import { POOL_Q, shuffled } from './pool'
 import Session from './Session'
 import { go } from './ui'
+import { IconChevronLeft } from '../lib/icons'
 
 const SLIDES: Record<LectureId, number> = { L7: 43, L8: 42, L9: 72, L10: 142 }
 
@@ -49,7 +50,7 @@ export default function Mock() {
   const alloc = allocate(cfg.n, cfg.by)
   return (
     <div className="pr-page">
-      <button className="btn ghost sm" onClick={() => go()}>← Practice</button>
+      <button className="btn ghost sm" onClick={() => go()}><IconChevronLeft size={14} />Practice</button>
       <h2>Mock quiz</h2>
       <p className="muted">A timed exam-style set mixing the question bank with freshly generated problems. No feedback until you submit, then a full review.</p>
       <div className="pr-form">

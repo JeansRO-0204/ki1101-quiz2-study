@@ -5,6 +5,7 @@ import { WIDGET } from '../registry'
 import type { MCQ, NumericQ, Question, WidgetQ, WidgetProps, WidgetResult } from '../types'
 import { diagnose } from './diagnose'
 import { toggleFlag, usePStore } from './store'
+import { IconCheckFill, IconXFill } from '../lib/icons'
 
 export type Answer =
   | { k: 'mcq'; sel: number[] }
@@ -138,8 +139,8 @@ function McqView({ q, mode, initial, onSubmit, onNext, nextLabel }: Props & { q:
             <button key={i} className={cls} onClick={() => toggle(i)} onMouseDown={(e) => e.preventDefault()} aria-pressed={picked}>
               <span className="pq-key">{multi ? (picked ? '☑' : '☐') : i + 1}</span>
               <span className="pq-opt-body"><Md inline>{o}</Md></span>
-              {showFb && right && <span className="pq-mark ok">✓</span>}
-              {showFb && picked && !right && <span className="pq-mark err">✗</span>}
+              {showFb && right && <span className="pq-mark ok"><IconCheckFill size={20} /></span>}
+              {showFb && picked && !right && <span className="pq-mark err"><IconXFill size={20} /></span>}
             </button>
           )
         })}

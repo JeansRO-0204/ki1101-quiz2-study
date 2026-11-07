@@ -8,7 +8,7 @@
 .l7-choices { display: flex; flex-wrap: wrap; gap: 6px; }
 .l7-tabs { margin-bottom: 12px; }
 .l7-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 10px 0; }
-.l7-card { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: #fbfcfd; }
+.l7-card { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--fill-2); }
 .l7-card small { display: block; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; }
 .l7-card b { font-size: 14.5px; font-family: var(--mono); font-weight: 600; word-break: break-word; }
 .l7-card.hidden b { color: var(--muted); letter-spacing: .2em; }
@@ -21,7 +21,7 @@
 .light-marker { position: absolute; top: 6px; width: 2px; height: 40px; background: var(--ink); pointer-events: none; transform: translateX(-1px); }
 .light-marker::after { content: ''; position: absolute; top: -4px; left: -4px; border: 5px solid transparent; border-top: 7px solid var(--ink); border-bottom: 0; }
 .light-band input[type=range] { position: absolute; left: -7px; right: -7px; width: calc(100% + 14px); top: 10px; height: 32px; margin: 0; opacity: .01; cursor: ew-resize; }
-.light-wave { width: 100%; height: 110px; display: block; background: #fbfcfd; border: 1px solid var(--line); border-radius: 10px; }
+.light-wave { width: 100%; height: 110px; display: block; background: var(--fill-2); border: 1px solid var(--line); border-radius: 10px; }
 .light-presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
 .light-given { font-size: 15px; padding: 8px 12px; background: var(--accent-soft); border-radius: 10px; margin-bottom: 10px; }
 
@@ -32,10 +32,10 @@
 .pe-ctl output { font-family: var(--mono); font-size: 12.5px; }
 .pe-bar { display: flex; height: 22px; border-radius: 6px; overflow: hidden; background: var(--soft); border: 1px solid var(--line); }
 .pe-bar span { display: grid; place-items: center; font-size: 11px; color: #fff; overflow: hidden; white-space: nowrap; transition: width .25s; }
-.pe-plot { width: 100%; background: #fbfcfd; border: 1px solid var(--line); border-radius: 10px; }
+.pe-plot { width: 100%; background: var(--fill-2); border: 1px solid var(--line); border-radius: 10px; }
 
 /* hatom */
-.ha-svg { width: 100%; display: block; background: #fbfcfd; border: 1px solid var(--line); border-radius: 10px; }
+.ha-svg { width: 100%; display: block; background: var(--fill-2); border: 1px solid var(--line); border-radius: 10px; }
 .ha-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 8px 0; font-size: 13px; }
 .ha-level { cursor: pointer; }
 .ha-level:hover line { stroke: var(--accent); stroke-width: 3; }
@@ -46,12 +46,12 @@
 .qn-ctl.bad { border-color: #f5c2c2; background: var(--err-soft); }
 .qn-ctl label { font-size: 12px; color: var(--muted); font-weight: 600; }
 .qn-step { display: flex; align-items: center; gap: 8px; }
-.qn-step button { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: #fff; font-size: 16px; line-height: 1; }
+.qn-step button { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: var(--fill); font-size: 16px; line-height: 1; }
 .qn-step button:hover { border-color: var(--accent); }
 .qn-step b { min-width: 30px; text-align: center; font-size: 17px; font-family: var(--mono); }
 .qn-main { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
 @media (max-width: 640px) { .qn-main { grid-template-columns: 1fr; } }
-.qn-shape { background: #fbfcfd; border: 1px solid var(--line); border-radius: 12px; width: 100%; }
+.qn-shape { background: var(--fill-2); border: 1px solid var(--line); border-radius: 12px; width: 100%; }
 .qn-big { font-size: 28px; font-weight: 700; letter-spacing: -.01em; }
 
 /* econfig */
@@ -60,7 +60,7 @@
 .ec-row { display: flex; align-items: center; gap: 8px; padding: 3px 6px; border-radius: 8px; }
 .ec-row.bad { background: var(--warn-soft); }
 .ec-lab { width: 34px; font-weight: 700; font-size: 14px; text-align: right; }
-.ec-box { width: 34px; height: 38px; border: 2px solid #94a3b8; border-radius: 6px; background: #fff; display: grid; place-items: center; font-size: 18px; line-height: 1; color: var(--electron); cursor: pointer; transition: border-color .15s, background .15s; padding: 0; }
+.ec-box { width: 34px; height: 38px; border: 2px solid #94a3b8; border-radius: 6px; background: var(--fill); display: grid; place-items: center; font-size: 18px; line-height: 1; color: var(--electron); cursor: pointer; transition: border-color .15s, background .15s; padding: 0; }
 .ec-box:hover { border-color: var(--accent); background: var(--accent-soft); }
 .ec-box.bad { border-color: var(--err); color: var(--err); background: var(--err-soft); }
 .ec-box.fixed { background: var(--soft); border-color: #cbd5e1; cursor: default; color: #64748b; }
@@ -84,8 +84,8 @@
 .tr-legend { display: flex; align-items: center; gap: 8px; font-size: 12px; margin: 8px 0; }
 .tr-legend i { display: block; height: 12px; width: 200px; border-radius: 6px; border: 1px solid var(--line); }
 .tr-rank { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
-.tr-slot { min-width: 64px; height: 50px; border: 2px dashed #94a3b8; border-radius: 10px; display: grid; place-items: center; font-weight: 700; background: #fff; cursor: pointer; }
+.tr-slot { min-width: 64px; height: 50px; border: 2px dashed #94a3b8; border-radius: 10px; display: grid; place-items: center; font-weight: 700; background: var(--fill); cursor: pointer; }
 .tr-slot.f { border-style: solid; border-color: var(--accent); background: var(--accent-soft); }
-.tr-chip { min-width: 56px; padding: 8px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff; font-weight: 700; font-size: 15px; }
+.tr-chip { min-width: 56px; padding: 8px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--fill); font-weight: 700; font-size: 15px; }
 .tr-chip:hover:not(:disabled) { border-color: var(--accent); }
 .tr-chip:disabled { opacity: .35; }

@@ -3,6 +3,7 @@ import type { WidgetProps } from '../../types'
 import { Workbench, useMode, Step, Verdict, Formula, SlideRef, type Note } from '../../lib/kit'
 import { analyze, dipoles, enOf, findSpecies, layoutOf, SPECIES } from './species'
 import { Choice, SpeciesPicker, useStepper, type StepResult, unicodeFormula } from './shared'
+import { IconLockFill } from '../../lib/icons'
 
 const Mol3D = lazy(() => import('./Mol3D'))
 type Reason = 'cancel' | 'lp' | 'diff' | 'nopolar'
@@ -113,7 +114,7 @@ function Inner({ id, mode, compact }: { id: string; mode: 'learn' | 'test'; comp
             <p className="muted" style={{ fontSize: 12.5 }}>Orange arrows: bond dipoles (arrowhead at δ−, length grows with ΔEN). Red arrow: their vector sum, the net dipole.</p>
           </>
         ) : (
-          <div className="l10-lock"><span style={{ fontSize: 28 }}>🔒</span><b>Dipole picture hidden</b><span className="muted">Predict first; the 3D dipole vectors appear after you check.</span></div>
+          <div className="l10-lock"><IconLockFill size={30} style={{ color: '#8e8e93' }} /><b>Dipole picture hidden</b><span className="muted">Predict first; the 3D dipole vectors appear after you check.</span></div>
         )}
       </div>
     </div>

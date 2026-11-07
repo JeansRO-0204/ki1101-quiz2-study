@@ -39,7 +39,7 @@ body.ws-dragging iframe, body.ws-dragging canvas { pointer-events: none; }
 
 /* toolbar */
 .ws-bar { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 200000; display: flex; align-items: center; gap: 6px; padding: 5px 7px; max-width: calc(100% - 24px);
-  background: #ffffffe6; backdrop-filter: blur(10px); border: 1px solid #d5dbe6; border-radius: 12px; box-shadow: 0 6px 24px #0f172a1a; cursor: default; flex-wrap: wrap; justify-content: center; }
+  background: #ffffffe6; border: 1px solid #d5dbe6; border-radius: 12px; box-shadow: 0 6px 24px #0f172a1a; cursor: default; flex-wrap: wrap; justify-content: center; }
 .ws-bar .btn.sm { padding: 4px 10px; white-space: nowrap; }
 .ws-bar .btn.ico { width: 28px; padding: 4px 0; text-align: center; font-size: 14px; line-height: 1; }
 .ws-zoom { min-width: 52px; font-variant-numeric: tabular-nums; }
@@ -84,3 +84,42 @@ kbd { font-family: var(--mono); font-size: 12px; background: #fff; border: 1px s
 .ws-l-item:hover { transform: translateY(-1px); box-shadow: 0 6px 16px #0f172a14; border-color: var(--pc); }
 .ws-l-item b { font-size: 13.5px; } .ws-l-item span { font-size: 12px; color: var(--muted); line-height: 1.35; }
 .ws-l-none { text-align: center; padding: 30px 0; }
+
+/* ---------- calm pass: bare white canvas, flat white panels, no blur ---------- */
+.ws { background-color: #fff; background-image: radial-gradient(circle, rgba(60, 60, 67, .16) 1px, transparent 1.3px); }
+.ws-panel { background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 1px 2px rgba(0, 0, 0, .05), 0 6px 20px rgba(0, 0, 0, .06); }
+.ws-panel.top { border-color: rgba(60, 60, 67, .28); box-shadow: 0 2px 4px rgba(0, 0, 0, .06), 0 14px 40px rgba(0, 0, 0, .13); }
+.ws-panel.max { border-radius: 0; border: none; }
+.ws-title { height: 38px; padding: 0 14px; gap: 10px; background: #fafafb; border-bottom: 1px solid var(--line); }
+.ws-ttl { color: #3c3c43; font-weight: 600; font-size: 13px; text-align: center; flex: 1; padding-right: 54px; }
+.ws-dot { display: none; }
+.ws-body .wb { background: transparent; border: none; box-shadow: none; }
+.ws-body .wb-head { background: transparent; }
+
+/* traffic lights */
+.ws-lights { display: flex; gap: 8px; flex: none; }
+.tl { width: 12px; height: 12px; border-radius: 50%; border: 0.5px solid rgba(0, 0, 0, .16); padding: 0; display: grid; place-items: center; color: transparent; transition: filter .12s, color .12s; }
+.tl.x { background: #ff5f57; } .tl.m { background: #febc2e; } .tl.z { background: #28c840; }
+.ws-lights:hover .tl { color: rgba(0, 0, 0, .55); }
+.tl:hover { filter: brightness(1.06); } .tl:active { filter: brightness(.88); }
+.ws-panel:not(.top) .ws-lights:not(:hover) .tl { background: #d9d9de; border-color: rgba(0, 0, 0, .08); }
+
+/* toolbar, menus, launcher: flat white */
+.ws-bar { top: 14px; padding: 6px 8px; gap: 6px; background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 1px 2px rgba(0, 0, 0, .05), 0 8px 24px rgba(0, 0, 0, .09); }
+.ws-bar .btn.sm { padding: 4px 11px; border-radius: 9px; }
+.ws-bar .btn.ico { width: 30px; padding: 4px 0; }
+.ws-menu, .ws-launcher { background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow-lg); }
+.ws-menu { border-radius: 14px; } .ws-launcher { border-radius: 20px; }
+.ws-menu-item:hover:not(:disabled), .ws-menu-item.row2 > button:hover { background: var(--accent); color: #fff; }
+.ws-menu-item:hover:not(:disabled) span, .ws-menu-item.row2 > button:hover span { color: rgba(255, 255, 255, .85); }
+.ws-menu-item.danger:hover:not(:disabled) b { color: #fff; }
+.ws-menu-item.row2 { border-radius: 10px; } .ws-menu-item.row2:hover { background: var(--soft); }
+.ws-modal { background: rgba(0, 0, 0, .22); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.ws-l-head input { background: var(--soft); border: 1.5px solid transparent; border-radius: 12px; }
+.ws-l-head input:focus { background: #fff; }
+.ws-l-item { background: #fff; border: 1px solid var(--line); border-left: 3px solid var(--pc); border-radius: 12px; }
+.ws-l-item:hover { box-shadow: 0 8px 20px rgba(0, 0, 0, .10); }
+.ws-empty-card { padding: 30px 38px; }
+.ws-empty-card .app-ic { margin-bottom: 4px; }
+.ws-empty-card b { font-size: 20px; letter-spacing: -.02em; }
+kbd { background: #fff; border-color: rgba(60, 60, 67, .22); }

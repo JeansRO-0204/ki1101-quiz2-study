@@ -3,6 +3,7 @@ import { CONTENT } from '../content'
 import { WIDGET } from '../registry'
 import { LECTURES, type LectureId } from '../types'
 import { Md, SlideRef, openInWorkspace } from '../lib/kit'
+import { IconPopOut, IconSparkles } from '../lib/icons'
 
 export default function Learn({ lecture, section }: { lecture: LectureId; section?: string }) {
   const L = CONTENT[lecture]
@@ -49,7 +50,7 @@ export default function Learn({ lecture, section }: { lecture: LectureId; sectio
               const C = w.component
               return (
                 <div key={id} className="embed">
-                  <div className="embed-bar"><span>Interactive · {w.title}</span><button className="btn ghost sm" onClick={() => openInWorkspace(id)}>Pop out to Workspace ↗</button></div>
+                  <div className="embed-bar"><span><IconSparkles size={14} style={{ color: 'var(--accent)' }} />Interactive · {w.title}</span><button className="btn ghost sm" onClick={() => openInWorkspace(id)}><IconPopOut size={14} />Pop out to Workspace</button></div>
                   <Suspense fallback={<div className="ph">Loading…</div>}><C /></Suspense>
                 </div>
               )

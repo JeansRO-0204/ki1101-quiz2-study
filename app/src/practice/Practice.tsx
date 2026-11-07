@@ -10,6 +10,8 @@ import { POOL_C, POOL_Q, USING_SAMPLE_Q } from './pool'
 import { isDue, usePStore, weakest } from './store'
 import { GENERATORS } from './generators'
 import { go, lecColor, pct, setPreset } from './ui'
+import { AppIcon, IconCards, IconChart, IconInfinity, IconPencil, IconTimer } from '../lib/icons'
+import type { ReactNode } from 'react'
 
 const TABS: [string, string][] = [['', 'Overview'], ['quiz', 'Quiz'], ['drill', 'Drill'], ['cards', 'Flashcards'], ['mock', 'Mock'], ['progress', 'Progress']]
 const EXAM = new Date(2026, 10, 10, 8, 0, 0) // Tue 10 Nov 2026
@@ -53,11 +55,11 @@ function Hub() {
       </div>
       {USING_SAMPLE_Q && <div className="pr-banner">The question bank is still being written: the quiz uses a small <b>dev sample</b>; drill and mock already work with generated questions.</div>}
       <div className="pr-modes">
-        <ModeCard sub="quiz" icon="✎" title="Quiz" text="Pick lectures, topics and question types. Learn mode checks every step; Test mode saves feedback for the end." meta={`${POOL_Q.length} questions`} />
-        <ModeCard sub="drill" icon="∞" title="Drill" text="Endless fresh numeric and conceptual problems with random values and full worked solutions." meta={`${GENERATORS.length} generators`} />
-        <ModeCard sub="cards" icon="▤" title="Flashcards" text="Leitner boxes at 1, 2, 4 and 8 days. Flip with Space, grade 1–4." meta={due ? `${due} due today` : 'nothing due'} accent={due > 0} />
-        <ModeCard sub="mock" icon="⏱" title="Mock quiz" text="A timed mixed exam balanced across L7–L10. No feedback until you submit." meta="30 min" />
-        <ModeCard sub="progress" icon="▥" title="Progress" text="Accuracy by lecture and topic, weak spots, backups." meta={atts.length ? `${pct(correct / atts.length)} of ${atts.length}` : 'no attempts yet'} />
+        <ModeCard sub="quiz" icon={<IconPencil size={22} />} tint="#007aff" title="Quiz" text="Pick lectures, topics and question types. Learn mode checks every step; Test mode saves feedback for the end." meta={`${POOL_Q.length} questions`} />
+        <ModeCard sub="drill" icon={<IconInfinity size={24} />} tint="#af52de" title="Drill" text="Endless fresh numeric and conceptual problems with random values and full worked solutions." meta={`${GENERATORS.length} generators`} />
+        <ModeCard sub="cards" icon={<IconCards size={22} />} tint="#ff9f0a" title="Flashcards" text="Leitner boxes at 1, 2, 4 and 8 days. Flip with Space, grade 1–4." meta={due ? `${due} due today` : 'nothing due'} accent={due > 0} />
+        <ModeCard sub="mock" icon={<IconTimer size={22} />} tint="#ff453a" title="Mock quiz" text="A timed mixed exam balanced across L7–L10. No feedback until you submit." meta="30 min" />
+        <ModeCard sub="progress" icon={<IconChart size={22} />} tint="#30b857" title="Progress" text="Accuracy by lecture and topic, weak spots, backups." meta={atts.length ? `${pct(correct / atts.length)} of ${atts.length}` : 'no attempts yet'} />
         {store.flagged.length > 0 && (
           <button className="pr-mode flag" onClick={() => { setPreset({ flaggedOnly: true }); go('quiz') }}>
             <span className="pr-mode-ic">⚑</span><b>Flagged</b><p>Retry the questions you marked for review.</p><small>{store.flagged.length} flagged</small>
@@ -77,10 +79,10 @@ function Hub() {
   )
 }
 
-function ModeCard({ sub, icon, title, text, meta, accent }: { sub: string; icon: string; title: string; text: string; meta: string; accent?: boolean }) {
+function ModeCard({ sub, icon, tint, title, text, meta, accent }: { sub: string; icon: ReactNode; tint: string; title: string; text: string; meta: string; accent?: boolean }) {
   return (
     <a className={'pr-mode' + (accent ? ' accent' : '')} href={'#/practice/' + sub}>
-      <span className="pr-mode-ic">{icon}</span><b>{title}</b><p>{text}</p><small>{meta}</small>
+      <AppIcon size={44} tint={tint}>{icon}</AppIcon><b>{title}</b><p>{text}</p><small>{meta}</small>
     </a>
   )
 }

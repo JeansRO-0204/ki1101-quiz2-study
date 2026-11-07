@@ -4,6 +4,7 @@ import { Workbench, useMode, Step, Feedback, Verdict, NumInput, Formula, SlideRe
 import { EG_LIST, MG_LIST, MG_ATOMS, SHAPES, ANGLE_TEXT, buildLayout, shapeOf, validCombo, EG_BY_DOMAINS, type AngleId } from './geom'
 import { SPECIES, findSpecies, analyze, layoutOf, lpExplain, ligandSummary, HYB_LABEL, type Lig } from './species'
 import { Axe, Choice, SpeciesPicker, useReportOnce, useStepper, type StepResult, unicodeFormula } from './shared'
+import { IconLockFill } from '../../lib/icons'
 
 const Mol3D = lazy(() => import('./Mol3D'))
 const Viewer = (p: React.ComponentProps<typeof Mol3D>) => (
@@ -203,7 +204,7 @@ function Work({ speciesId, mode, task, onResult, compact }: { speciesId: string;
             </div>
           </>
         ) : (
-          <div className="l10-lock"><span style={{ fontSize: 28 }}>🔒</span><b>3D model locked</b><span className="muted">Finish all five steps to reveal the molecule.</span></div>
+          <div className="l10-lock"><IconLockFill size={30} style={{ color: '#8e8e93' }} /><b>3D model locked</b><span className="muted">Finish all five steps to reveal the molecule.</span></div>
         )}
       </div>
     </div>

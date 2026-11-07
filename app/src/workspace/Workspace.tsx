@@ -2,6 +2,7 @@
 import { Component, Suspense, memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { WIDGET, WIDGETS } from '../registry'
 import { LECTURES } from '../types'
+import { AppIcon, IconChevronDown, IconFit, IconLayers, IconMagnet, IconMaximize, IconMinus, IconPanels, IconPlus, IconReset, IconRestore, IconX } from '../lib/icons'
 import './workspace.css'
 
 /* ---------- types & persistence ---------- */
@@ -127,21 +128,13 @@ const PanelWin = memo(function PanelWin({ p, k, vw, vh, vx, vy, snap, top, onFoc
       style={{ width: geo.w, height: geo.h, transform: `translate(${geo.x}px, ${geo.y}px)`, zIndex: p.max ? 100000 : p.z, ['--pc' as string]: color }}
       onPointerDownCapture={() => onFocus(p.id)}>
       <div className="ws-title" onPointerDown={startMove} onDoubleClick={() => onChange(p.id, { max: !p.max, min: false })}>
+        <div className="ws-lights" onPointerDown={stop} onDoubleClick={stop}>
+          <button className="tl x" title="Close" aria-label="Close" onClick={() => onClose(p.id)}><IconX size={9} style={{ strokeWidth: 3.4 }} /></button>
+          <button className="tl m" title={p.min ? 'Restore' : 'Minimise'} aria-label="Minimise" onClick={() => onChange(p.id, { min: !p.min, max: false })}><IconMinus size={9} style={{ strokeWidth: 3.4 }} /></button>
+          <button className="tl z" title={p.max ? 'Restore size' : 'Maximise'} aria-label="Maximise" onClick={() => onChange(p.id, { max: !p.max, min: false })}>{p.max ? <IconRestore size={9} style={{ strokeWidth: 3 }} /> : <IconMaximize size={9} style={{ strokeWidth: 3 }} />}</button>
+        </div>
         <span className="ws-dot" />
         <span className="ws-ttl">{def?.title ?? p.widgetId}</span>
-        <div className="ws-btns" onPointerDown={stop} onDoubleClick={stop}>
-          <button title={p.min ? 'Restore' : 'Minimise'} onClick={() => onChange(p.id, { min: !p.min, max: false })}>
-            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 8.5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
-          </button>
-          <button title={p.max ? 'Restore size' : 'Maximise'} onClick={() => onChange(p.id, { max: !p.max, min: false })}>
-            {p.max
-              ? <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2.5" y="4" width="5.5" height="5.5" rx="1" /><path d="M4.5 4V2.5h5V7.5H8" /></svg>
-              : <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="2.5" y="2.5" width="7" height="7" rx="1.2" /></svg>}
-          </button>
-          <button className="x" title="Close" onClick={() => onClose(p.id)}>
-            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
-          </button>
-        </div>
       </div>
       <div className="ws-body" style={p.min ? { display: 'none' } : undefined} onPointerDown={stop} onWheel={stop} onContextMenu={stop} onDoubleClick={stop}>
         <PanelBody widgetId={p.widgetId} />
@@ -399,7 +392,7 @@ export default function Workspace() {
       {!panels.length && (
         <div className="ws-empty">
           <div className="ws-empty-card">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="5" y="8" width="22" height="16" rx="3" /><rect x="14" y="16" width="21" height="16" rx="3" fill="var(--panel)" /></svg>
+            <AppIcon size={64} tint="#5e5ce6"><IconPanels size={34} /></AppIcon>
             <b>Your desk is empty</b>
             <span>Double-click the canvas or press <kbd>A</kbd> to add a panel</span>
             <div className="row" style={{ justifyContent: 'center' }}>
@@ -411,9 +404,9 @@ export default function Workspace() {
       )}
 
       <div className="ws-bar" onDoubleClick={(e) => e.stopPropagation()}>
-        <button className="btn primary sm" onClick={() => setLaunch({})} title="Add panel (A)">＋ Add panel</button>
+        <button className="btn primary sm" onClick={() => setLaunch({})} title="Add panel (A)"><IconPlus size={14} style={{ strokeWidth: 2.4 }} />Add panel</button>
         <div className="ws-menu-wrap">
-          <button className={'btn sm' + (menu ? ' on' : '')} onClick={() => setMenu((m) => !m)}>Layouts ▾</button>
+          <button className={'btn sm' + (menu ? ' on' : '')} onClick={() => setMenu((m) => !m)}><IconLayers size={14} />Layouts<IconChevronDown size={11} style={{ strokeWidth: 2.4 }} /></button>
           {menu && (
             <div className="ws-menu" onPointerDown={(e) => e.stopPropagation()}>
               <h5>Presets</h5>
@@ -426,7 +419,7 @@ export default function Workspace() {
               {saved.map((s) => (
                 <div key={s.name} className="ws-menu-item row2">
                   <button onClick={() => applyLayout(s.panels)}><b>{s.name}</b><span>{s.panels.length} panels</span></button>
-                  <button className="del" title="Delete layout" onClick={() => setSaved((a) => a.filter((x) => x.name !== s.name))}>✕</button>
+                  <button className="del" title="Delete layout" onClick={() => setSaved((a) => a.filter((x) => x.name !== s.name))}><IconX size={14} /></button>
                 </div>
               ))}
               <h5>Save current</h5>
@@ -439,13 +432,13 @@ export default function Workspace() {
           )}
         </div>
         <span className="ws-sep" />
-        <button className={'btn sm' + (snap ? ' on' : '')} onClick={() => setSnap((s) => !s)} title="Snap panels to an 8 px grid">Snap</button>
+        <button className={'btn sm' + (snap ? ' on' : '')} onClick={() => setSnap((s) => !s)} title="Snap panels to an 8 px grid"><IconMagnet size={14} />Snap</button>
         <span className="ws-sep" />
-        <button className="btn sm ico" onClick={() => zoomCentre(1 / 1.2)} title="Zoom out">−</button>
+        <button className="btn sm ico" onClick={() => zoomCentre(1 / 1.2)} title="Zoom out" aria-label="Zoom out"><IconMinus size={14} /></button>
         <button className="btn sm ws-zoom" onClick={() => setView((v) => ({ ...v, k: 1 }))} title="Zoom to 100%">{Math.round(view.k * 100)}%</button>
-        <button className="btn sm ico" onClick={() => zoomCentre(1.2)} title="Zoom in">＋</button>
-        <button className="btn sm" onClick={() => fit(panels.filter((p) => !p.min))} disabled={!panels.length} title="Fit all panels in view">Fit</button>
-        <button className="btn sm" onClick={() => setView({ x: 0, y: 0, k: 1 })} title="Reset view">Reset view</button>
+        <button className="btn sm ico" onClick={() => zoomCentre(1.2)} title="Zoom in" aria-label="Zoom in"><IconPlus size={14} /></button>
+        <button className="btn sm" onClick={() => fit(panels.filter((p) => !p.min))} disabled={!panels.length} title="Fit all panels in view"><IconFit size={14} />Fit</button>
+        <button className="btn sm" onClick={() => setView({ x: 0, y: 0, k: 1 })} title="Reset view"><IconReset size={14} />Reset view</button>
       </div>
       {launch && <Launcher onPick={(id) => addPanel(id, launch.at)} onClose={() => setLaunch(null)} />}
     </div>

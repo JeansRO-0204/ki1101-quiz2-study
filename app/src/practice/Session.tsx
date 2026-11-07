@@ -5,6 +5,7 @@ import QuestionView, { type Outcome } from './QuestionView'
 import { groupBy, logAttempt, type Source } from './store'
 import { genOf } from './generators'
 import { Bar, accColor, lecColor, pct } from './ui'
+import { IconChevronLeft, IconChevronRight, IconTimer } from '../lib/icons'
 
 export interface SessionProps {
   title: string
@@ -81,7 +82,7 @@ export default function Session(p: SessionProps) {
       <div className="pr-sess-head">
         <div><b>{p.title}</b> <span className="muted">· {mode === 'learn' ? 'Learn mode' : 'Test mode'} · {answered}/{qs.length} answered</span></div>
         <div className="row">
-          {p.timeLimit ? <span className={'pr-timer' + (left < 120 ? ' low' : '')}>⏱ {fmtT(left)}</span> : null}
+          {p.timeLimit ? <span className={'pr-timer' + (left < 120 ? ' low' : '')}><IconTimer size={14} /> {fmtT(left)}</span> : null}
           <button className="btn" onClick={() => { if (mode === 'learn' || answered === qs.length || confirm(`${qs.length - answered} question(s) unanswered. Submit anyway?`)) finish() }}>{mode === 'test' ? 'Submit' : 'Finish'}</button>
           <button className="btn ghost" onClick={() => { if (confirm('Leave this session? Progress in it is kept only for answered questions.')) p.onExit() }}>Quit</button>
         </div>
@@ -104,9 +105,9 @@ export default function Session(p: SessionProps) {
         )}
       </div>
       <div className="pr-sess-nav">
-        <button className="btn" disabled={idx === 0} onClick={() => go(idx - 1)}>← Previous</button>
+        <button className="btn" disabled={idx === 0} onClick={() => go(idx - 1)}><IconChevronLeft size={14} />Previous</button>
         <span className="muted">Question {idx + 1} of {qs.length}</span>
-        <button className="btn" disabled={isLast} onClick={() => go(idx + 1)}>Next →</button>
+        <button className="btn" disabled={isLast} onClick={() => go(idx + 1)}>Next<IconChevronRight size={14} /></button>
       </div>
     </div>
   )

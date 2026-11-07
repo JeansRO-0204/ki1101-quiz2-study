@@ -5,6 +5,7 @@ import { LECTURES, type Flashcard, type LectureId } from '../types'
 import { POOL_C, USING_SAMPLE_C, shuffled } from './pool'
 import { BOX_DAYS, applyGrade, getStore, gradeCard, isDue, updateStore, usePStore, type CardState, type Grade } from './store'
 import { Bar, go, lecColor } from './ui'
+import { IconChevronLeft } from '../lib/icons'
 
 const GRADES: { g: Grade; label: string; key: string }[] = [
   { g: 'again', label: 'Again', key: '1' }, { g: 'hard', label: 'Hard', key: '2' }, { g: 'good', label: 'Good', key: '3' }, { g: 'easy', label: 'Easy', key: '4' },
@@ -68,7 +69,7 @@ export default function Cards() {
   return (
     <div className="pr-page pr-cards">
       <div className="row">
-        <button className="btn ghost sm" onClick={() => go()}>← Practice</button>
+        <button className="btn ghost sm" onClick={() => go()}><IconChevronLeft size={14} />Practice</button>
         <h2>Flashcards</h2>
         <span className="grow" />
         <span className="chip warn">{dueNow.length} due</span><span className="chip">{pool.length} cards</span>

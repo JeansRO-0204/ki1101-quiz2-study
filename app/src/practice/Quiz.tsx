@@ -7,6 +7,7 @@ import { POOL_Q, USING_SAMPLE_Q, shuffled, topicsOf } from './pool'
 import Session from './Session'
 import { usePStore } from './store'
 import { go, takePreset } from './ui'
+import { IconChevronLeft, IconArrowRight } from '../lib/icons'
 
 interface Setup {
   lectures: LectureId[]; topics: string[]; source: 'both' | 'slide' | 'generated'; kinds: string[]
@@ -63,7 +64,7 @@ function QuizSetup({ onStart }: { onStart: (title: string, qs: Question[], mode:
 
   return (
     <div className="pr-page">
-      <button className="btn ghost sm" onClick={() => go()}>← Practice</button>
+      <button className="btn ghost sm" onClick={() => go()}><IconChevronLeft size={14} />Practice</button>
       <h2>Quiz setup</h2>
       {USING_SAMPLE_Q && <div className="pr-banner">The question bank is still empty: showing a small <b>dev sample</b>. Generated drill questions can fill the rest.</div>}
       <div className="pr-form">
@@ -101,7 +102,7 @@ function QuizSetup({ onStart }: { onStart: (title: string, qs: Question[], mode:
             <label className="pr-check" title="If the bank has fewer questions than requested, add fresh parameterized ones"><input type="checkbox" checked={s.topUp} onChange={(e) => set('topUp', e.target.checked)} /> Top up with generated questions</label>
           </div>
           <div className="pr-avail"><b>{matching.length}</b> bank question{matching.length === 1 ? '' : 's'} match{gens.length && s.topUp ? <> · <b>{gens.length}</b> generators available</> : null}</div>
-          <button className="btn primary pr-big" disabled={disabled || !total} onClick={start}>Start quiz →</button>
+          <button className="btn primary pr-big" disabled={disabled || !total} onClick={start}>Start quiz<IconArrowRight size={14} /></button>
         </section>
       </div>
     </div>

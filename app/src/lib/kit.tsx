@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import katex from 'katex'
 import type { LectureId, Mode } from '../types'
+import { IconCheck, IconChevronLeft, IconChevronRight, LEVEL_ICON } from './icons'
 
 /* ---------- persistence ---------- */
 export function useLocalState<T>(key: string, init: T): [T, (v: T | ((p: T) => T)) => void] {
@@ -73,9 +74,9 @@ export function SlideLightbox({ at, onClose, onNav }: { at: { l: LectureId; n: n
       <figure onClick={(e) => e.stopPropagation()}>
         <img src={slideSrc(at.l, at.n)} alt={`${at.l} slide ${at.n}`} />
         <figcaption>
-          <button disabled={at.n <= 1} onClick={() => onNav(at.n - 1)}>←</button>
+          <button disabled={at.n <= 1} onClick={() => onNav(at.n - 1)} aria-label="Previous slide"><IconChevronLeft size={16} /></button>
           <span>{at.l} · slide {at.n} / {SLIDE_COUNT[at.l]}</span>
-          <button disabled={at.n >= SLIDE_COUNT[at.l]} onClick={() => onNav(at.n + 1)}>→</button>
+          <button disabled={at.n >= SLIDE_COUNT[at.l]} onClick={() => onNav(at.n + 1)} aria-label="Next slide"><IconChevronRight size={16} /></button>
           <button onClick={onClose}>Close</button>
         </figcaption>
       </figure>
@@ -133,7 +134,7 @@ export function Step({ n, title, status, children, notes }: {
   return (
     <div className={'wb-step ' + status}>
       <div className="wb-step-head">
-        <span className="wb-step-n">{status === 'done' ? '✓' : status === 'error' ? '!' : n}</span>
+        <span className="wb-step-n">{status === 'done' ? <IconCheck size={14} style={{ strokeWidth: 2.6 }} /> : status === 'error' ? '!' : n}</span>
         <span className="wb-step-title">{title}</span>
       </div>
       {status !== 'locked' && <div className="wb-step-body">{children}{notes && <Feedback notes={notes} />}</div>}
@@ -144,11 +145,10 @@ export function Step({ n, title, status, children, notes }: {
 /** List of feedback lines (✓ correct, ✗ error with reason, ⚠ warning, 💡 hint). Markdown+math allowed. */
 export function Feedback({ notes }: { notes: Note[] }) {
   if (!notes.length) return null
-  const icon: Record<Level, string> = { ok: '✓', err: '✗', warn: '⚠', hint: '💡', info: 'ℹ' }
   return (
     <ul className="wb-fb">
       {notes.map((n, i) => (
-        <li key={i} className={n.level}><span className="ic">{icon[n.level]}</span><Md inline>{n.msg}</Md></li>
+        <li key={i} className={n.level}><span className="ic">{(() => { const I = LEVEL_ICON[n.level]; return <I size={16} /> })()}</span><Md inline>{n.msg}</Md></li>
       ))}
     </ul>
   )

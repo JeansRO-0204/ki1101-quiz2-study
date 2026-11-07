@@ -67,7 +67,7 @@
 .lewis-orb-grp { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .lewis-orb-grp .lab { font-size: 11px; color: var(--muted); font-weight: 600; }
 .lewis-orb-row { display: flex; gap: 3px; }
-.lewis-orb { width: 36px; height: 36px; border-radius: 7px; border: 1.8px solid var(--muted); background: #fff; display: grid; place-items: center; cursor: pointer; font-size: 17px; font-weight: 700; line-height: 1; transition: background .12s, transform .08s; padding: 0; letter-spacing: -2px; }
+.lewis-orb { width: 36px; height: 36px; border-radius: 7px; border: 1.8px solid var(--muted); background: var(--fill); display: grid; place-items: center; cursor: pointer; font-size: 17px; font-weight: 700; line-height: 1; transition: background .12s, transform .08s; padding: 0; letter-spacing: -2px; }
 .lewis-orb.s { border-color: var(--s-orb); color: var(--s-orb); }
 .lewis-orb.p { border-color: var(--p-orb); color: var(--p-orb); }
 .lewis-orb:hover { background: var(--soft); }
@@ -79,7 +79,7 @@
 .lewis-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
 .lewis-line .lab { font-size: 13.5px; }
 .lewis-atoms-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
-.lewis-atom-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 4px; border-radius: 99px; border: 1.5px solid var(--line); background: #fff; font-size: 13px; }
+.lewis-atom-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 4px; border-radius: 99px; border: 1.5px solid var(--line); background: var(--fill); font-size: 13px; }
 .lewis-atom-chip:hover { border-color: var(--accent); }
 .lewis-atom-chip.on { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
 .lewis-atom-chip i { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 11.5px; font-weight: 700; border: 1px solid #0003; }
@@ -92,12 +92,12 @@
 .lewis-tbl .ok { color: var(--ok); } .lewis-tbl .warn { color: var(--warn); } .lewis-tbl .bad { color: var(--err); } .lewis-tbl .info { color: var(--accent); }
 .lewis-sec { margin-top: 12px; }
 .lewis-sec h5 { margin: 0 0 4px; font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
-.lewis-ref { border: 1px solid var(--line); border-radius: 10px; background: #fcfdfe; padding: 4px; margin-top: 8px; }
+.lewis-ref { border: 1px solid var(--line); border-radius: 10px; background: var(--fill-2); padding: 4px; margin-top: 8px; }
 .lewis-ref .cap { font-size: 12px; color: var(--muted); padding: 2px 8px 4px; }
 .lewis-ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
 .lewis-notes { font-size: 13px; color: var(--muted); line-height: 1.5; margin-top: 8px; }
 .lewis-picker { display: flex; align-items: center; gap: 6px; }
-.lewis-picker input { border: 1px solid var(--line); border-radius: 8px; padding: 5px 9px; background: #fff; width: 190px; font-size: 13px; }
+.lewis-picker input { border: 1px solid var(--line); border-radius: 8px; padding: 5px 9px; background: var(--fill); width: 190px; font-size: 13px; }
 .lewis-picker input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .lewis-err { color: var(--err); font-size: 12.5px; margin: 0 0 8px; }
 .lewis-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
@@ -110,7 +110,7 @@
   radial-gradient(circle at 1px 1px, #d9dee8 1px, transparent 1.3px) 0 0 / 22px 22px, #fcfdfe; padding: 4px; position: relative; }
 .res-badge { position: absolute; top: 8px; left: 10px; display: flex; gap: 6px; align-items: center; }
 .res-forms { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-.res-form { border: 1.5px solid var(--line); border-radius: 10px; background: #fff; padding: 2px; width: 118px; cursor: pointer; transition: border-color .15s, box-shadow .15s; text-align: center; }
+.res-form { border: 1.5px solid var(--line); border-radius: 10px; background: var(--fill); padding: 2px; width: 118px; cursor: pointer; transition: border-color .15s, box-shadow .15s; text-align: center; }
 .res-form:hover { border-color: #b8c2d4; }
 .res-form.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .res-form small { display: block; font-size: 10.5px; color: var(--muted); padding-bottom: 3px; }
@@ -119,7 +119,7 @@
 .res-form.q-wrong { border-color: var(--err); box-shadow: 0 0 0 3px var(--err-soft); }
 .res-ctl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
 .res-pick { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-.res-pick .chip { cursor: pointer; font-size: 13px; padding: 4px 11px; background: #fff; }
+.res-pick .chip { cursor: pointer; font-size: 13px; padding: 4px 11px; background: var(--fill); }
 .res-pick .chip:hover { border-color: var(--accent); }
 .res-pick .chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
 .res-note { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-top: 8px; }
@@ -137,7 +137,7 @@
 .lewis-guide-open { margin: 0 6px 4px; font-size: 12px; color: var(--accent); }
 .lewis-ord button { display: inline-flex; align-items: center; gap: 5px; }
 .lewis-ord .lewis-glyph { color: currentColor; width: 22px; }
-.lewis-tray { margin: 6px 6px 2px; border: 1px solid var(--line); border-radius: 10px; background: #fff; padding: 6px 8px; display: grid; gap: 3px; }
+.lewis-tray { margin: 6px 6px 2px; border: 1px solid var(--line); border-radius: 10px; background: var(--fill); padding: 6px 8px; display: grid; gap: 3px; }
 .lewis-tray-h { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
 .lewis-tray-h small { text-transform: none; letter-spacing: 0; font-weight: 400; }
 .lewis-tray-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 3px 6px; border-radius: 8px; border: 1.5px solid transparent; cursor: pointer; }
@@ -147,7 +147,7 @@
 .lewis-tray-atom i { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 11.5px; font-weight: 700; border: 1px solid #0003; }
 .lewis-tray-ctl { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; }
 .lewis-tray-ctl em { font-style: normal; color: var(--muted); margin-left: 2px; }
-.lewis-tray-ctl button { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--line); background: #fff; font-size: 16px; line-height: 1; display: grid; place-items: center; padding: 0; }
+.lewis-tray-ctl button { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--fill); font-size: 16px; line-height: 1; display: grid; place-items: center; padding: 0; }
 .lewis-tray-ctl button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 .lewis-tray-ctl button:disabled { opacity: .35; cursor: not-allowed; }
 .lewis-tray-ctl .n { min-width: 16px; text-align: center; font-family: var(--mono); font-weight: 700; }
