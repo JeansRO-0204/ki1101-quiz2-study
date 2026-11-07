@@ -2,7 +2,8 @@
 import { useState } from 'react'
 import { Md } from '../lib/kit'
 import type { PastPaper, Question } from '../types'
-import { PAST_PAPERS } from './bank'
+import { PAST_FIGURES, PAST_PAPERS } from './bank'
+import { PastFigures } from './PastFigures'
 import { LangSwitch, useLang } from './Hints'
 import QuestionView, { KeysCtx, type Outcome } from './QuestionView'
 import { logAttempt, usePStore } from './store'
@@ -96,6 +97,7 @@ function Paper({ paper }: { paper: PastPaper }) {
             <h3>{t.soal} {pr.n}{pr.points != null && <small> · {pr.points} {t.pts}</small>}</h3>
             {pr.outOfScope && <span className="chip warn"><IconFlag size={12} />{t.oos}</span>}
           </header>
+          <PastFigures figs={PAST_FIGURES[`${paper.id}:${pr.n}`]} lang={lang} />
           {(pr.intro || pr.introId) && <div className="pp-intro"><Md>{(lang === 'id' ? pr.introId : pr.intro) ?? pr.intro ?? ''}</Md></div>}
           {pr.parts.map((q) => (
             <div key={q.id} className="pp-part">
@@ -109,3 +111,4 @@ function Paper({ paper }: { paper: PastPaper }) {
     </KeysCtx.Provider>
   )
 }
+

@@ -7,6 +7,7 @@ import { blankOk, blankWhy, orderOk } from './answerCheck'
 import { useScriptTyping } from '../lib/scripts'
 import { ScriptArea } from '../lib/scripts'
 import { PAST_CONTEXT } from './bank'
+import { PastFigures } from './PastFigures'
 import { HintLadder, LangSwitch, loc, useLang } from './Hints'
 import { diagnose } from './diagnose'
 import { toggleFlag, usePStore } from './store'
@@ -76,7 +77,7 @@ export default function QuestionView(props: Props & { hideMeta?: boolean }) {
           {q.indo && <><span className="grow" /><LangSwitch lang={lang} setLang={setLang} /></>}
         </div>
       )}
-      {!hideMeta && (() => { const c = PAST_CONTEXT.get(q0.id); const t = c && ((lang === 'id' ? c.introId : c.intro) ?? c.intro); return t ? <div className="pp-intro pq-ctx"><Md>{t}</Md></div> : null })()}
+      {!hideMeta && (() => { const c = PAST_CONTEXT.get(q0.id); const t = c && ((lang === 'id' ? c.introId : c.intro) ?? c.intro); return c ? <><PastFigures figs={c.figures} lang={lang} />{t && <div className="pp-intro pq-ctx"><Md>{t}</Md></div>}</> : null })()}
       <div className="pq-stem"><Md>{q.stem}</Md></div>
       {mode === 'learn' && <HintLadder hints={L.hints} work={L.work} lang={lang} resetKey={q0.id} />}
       {canPaper && mode !== 'review' && (
