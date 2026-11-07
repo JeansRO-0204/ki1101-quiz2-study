@@ -125,7 +125,7 @@ kbd { font-family: var(--mono); font-size: 12px; background: #fff; border: 1px s
 kbd { background: #fff; border-color: rgba(60, 60, 67, .22); }
 
 /* ---------- ink layer ---------- */
-.ws-ink { position: absolute; left: 0; top: 0; overflow: visible; z-index: 0; pointer-events: none; }
+.ws-ink { position: absolute; left: 0; top: 0; overflow: visible; z-index: 150000; pointer-events: none; } /* ink always sits above panels */
 .ws-ink.top { z-index: 150000; }
 .ws-ink-catch { position: absolute; inset: 0; z-index: 160000; cursor: crosshair; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .ws-ink-catch.erase { cursor: cell; }

@@ -11,7 +11,9 @@ export const PEN_COLORS = ['#1d1d1f', '#0a6cf0', '#e5322d', '#1f8a3c']
 export const HL_COLORS = ['#ffd60a', '#64d2ff', '#ff9fd2']
 export const WIDTHS = [1.6, 2.8, 5]
 
-let penSeenGlobal = false
+// remembered per device: once an Apple Pencil has been used here, fingers never draw (they tap, scroll and pan)
+let penSeenGlobal = (() => { try { return localStorage.getItem('ink.pen') === '1' } catch { return false } })()
+const markPen = () => { if (!penSeenGlobal) { penSeenGlobal = true; try { localStorage.setItem('ink.pen', '1') } catch { /* ignore */ } } }
 /** true once any Apple Pencil / stylus input has been seen this session */
 export const penSeen = () => penSeenGlobal
 
@@ -95,7 +97,7 @@ export function useInk({ setStrokes, tool, toLocal, scale = 1, enabled = true, f
   const cur = useRef<{ id: number; s: Stroke | null } | null>(null)
   const raf = useRef(0)
   const accept = (e: RPointerEvent) => {
-    if (e.pointerType === 'pen') { penSeenGlobal = true; return true }
+    if (e.pointerType === 'pen') { markPen(); return true }
     if (e.pointerType === 'touch') return fingers === 'auto' && !penSeenGlobal
     return e.button === 0
   }
