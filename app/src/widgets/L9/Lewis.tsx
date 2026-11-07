@@ -388,7 +388,7 @@ function Bench({ ctx, mode, hasTask, resRequested, onResult, compact }: {
               <button className={tool === 'bond' ? 'on' : ''} onClick={() => setTool('bond')} disabled={!live}>Connect atoms</button>
               <button className={tool === 'elec' ? 'on' : ''} onClick={() => setTool('elec')} disabled={!elecOpen} title={elecOpen ? '' : 'Unlocks after the skeleton (step 2)'}>Electrons</button>
             </div>
-            <span className="sp" />
+            <span className="lewis-sp" />
             {selBond && (
               <>
                 <div className="seg lewis-ord" title={elecOpen ? 'Set the bond order (keys 1 / 2 / 3)' : 'Double and triple bonds unlock in step 3'}>
