@@ -132,3 +132,23 @@
 .sp-page { display: block; width: 100%; height: auto; border-radius: 6px; box-shadow: 0 1px 3px rgba(0, 0, 0, .08), 0 6px 20px rgba(0, 0, 0, .06); cursor: crosshair; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .sp-page.erase { cursor: cell; }
 .sp-tip { font-size: 11.5px; text-align: center; margin: 10px 0 0; }
+
+/* Aufbau diagram */
+.ab { padding: 12px 14px 16px; display: grid; gap: 8px; max-width: 640px; margin: 0 auto; }
+.ab-top { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; font-size: 13px; }
+.ab-chk { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; font-size: 13px; cursor: pointer; }
+.ab-svg { width: 100%; height: auto; display: block; color: #3478f6; user-select: none; -webkit-user-select: none; }
+.ab-arrow { stroke: currentColor; stroke-width: 1.4; opacity: .55; }
+.ab-arrow.on { stroke-width: 2.6; opacity: 1; color: var(--accent); }
+.ab-col { font-size: 14px; font-weight: 700; paint-order: stroke; stroke: #0002; stroke-width: .4px; }
+.ab-orb { cursor: pointer; outline: none; }
+.ab-orb text { font-size: 17px; font-weight: 600; fill: #1d1d1f; }
+.ab-orb:hover rect { fill: #0000000a; }
+.ab-orb:focus-visible rect { stroke: var(--accent); }
+.ab-orb.off text { fill: #b4b8c2; }
+.ab-sup { font-size: 12px; font-weight: 700; }
+.ab-num { fill: var(--accent); }
+.ab-numt { font-size: 9.5px; font-weight: 700; fill: #fff !important; }
+.ab-info p { margin: 4px 0; font-size: 13.5px; }
+.ab-seq { line-height: 1.5; }
+.ab-note { font-size: 12px !important; }

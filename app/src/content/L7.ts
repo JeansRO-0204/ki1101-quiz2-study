@@ -198,7 +198,7 @@ Ionisation of ground-state H: $n=1\to\infty$, $E=2.18\times10^{-18}$ J $= 1312$ 
       id: 'config',
       title: 'Orbitals in the periodic table & electron configuration',
       slides: [39],
-      widgets: ['econfig'],
+      widgets: ['aufbau', 'econfig'],
       md: r`
 Slide 39: the table is divided into **blocks** by the subshell being filled.
 - **s block**: groups 1–2 (+ He). **p block**: groups 13–18. **d block**: groups 3–12 (fills $(n-1)d$). **f block**: lanthanides/actinides (fills $(n-2)f$).
