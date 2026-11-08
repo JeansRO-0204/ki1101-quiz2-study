@@ -293,6 +293,16 @@ export default function Workspace() {
   }
   /* Draw mode: grab drawing input before panels see it. Pencil and mouse/trackpad (incl. Sidecar) draw on top of
      everything; fingers draw only until a Pencil has been seen, after that they reach panels (buttons, scrolling) as usual. */
+  /* iPad: panel bodies are native scrollers, so a Pencil drag on one scrolls it instead of drawing (touch-action can't tell
+     Pencil from finger). Safari marks Pencil touches as touchType 'stylus': cancel those so they only draw. */
+  useEffect(() => {
+    const el = boxRef.current
+    if (!el || !drawMode) return
+    const stop = (e: TouchEvent) => { if (Array.from(e.changedTouches).some((t) => (t as Touch & { touchType?: string }).touchType === 'stylus') && e.cancelable) e.preventDefault() }
+    el.addEventListener('touchstart', stop, { passive: false })
+    el.addEventListener('touchmove', stop, { passive: false })
+    return () => { el.removeEventListener('touchstart', stop); el.removeEventListener('touchmove', stop) }
+  }, [drawMode])
   const lastIn = useRef({ type: '', t: 0, pen: 0 })
   const onDrawCapture = (e: React.PointerEvent) => {
     lastIn.current = { type: e.pointerType, t: Date.now(), pen: e.pointerType === 'pen' ? Date.now() : lastIn.current.pen }
