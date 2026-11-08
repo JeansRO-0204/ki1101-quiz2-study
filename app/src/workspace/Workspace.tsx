@@ -293,7 +293,9 @@ export default function Workspace() {
   }
   /* Draw mode: grab drawing input before panels see it. Pencil and mouse/trackpad (incl. Sidecar) draw on top of
      everything; fingers draw only until a Pencil has been seen, after that they reach panels (buttons, scrolling) as usual. */
+  const lastIn = useRef({ type: '', t: 0, pen: 0 })
   const onDrawCapture = (e: React.PointerEvent) => {
+    lastIn.current = { type: e.pointerType, t: Date.now(), pen: e.pointerType === 'pen' ? Date.now() : lastIn.current.pen }
     if (!drawMode) return
     const t = e.target as Element
     if (t.closest('.ws-bar') || t.closest('.ws-menu') || t.closest('.ws-modal') || t.closest('.ink-pal') || t.closest('.ws-lights')) return
@@ -430,6 +432,10 @@ export default function Workspace() {
   const openAt = (e: React.MouseEvent) => {
     const t = e.target as Element
     if (t.closest('.ws-panel') || t.closest('.ws-bar') || t.closest('.ws-modal') || t.closest('.ws-menu')) return
+    // never open the panel menu while drawing, or from a resting palm / stray touch while a Pencil is in use
+    const li = lastIn.current
+    if (drawMode || Date.now() - li.pen < 4000) return
+    if (penSeen() && (li.type === 'touch' || e.type === 'contextmenu')) return
     e.preventDefault()
     const r = boxRef.current!.getBoundingClientRect()
     setLaunch({ at: toWorld(e.clientX - r.left, e.clientY - r.top) })
