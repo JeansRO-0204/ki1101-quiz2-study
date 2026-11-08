@@ -14,6 +14,9 @@ import {
 } from './engine'
 import { SPECIES, outerShell, valenceOf, getSpecies } from './species'
 import './lewis.css'
+import FormulaPad, { elementsIn } from '../../lib/FormulaPad'
+
+const LEWIS_ELEMENTS = elementsIn(SPECIES.map((s) => s.formula))
 
 /** Small bond icon: 1, 2 or 3 parallel lines. */
 function BondGlyph({ n }: { n: 1 | 2 | 3 }) {
@@ -51,13 +54,11 @@ export default function Lewis({ mode: forced, task, onResult, compact }: WidgetP
   }
   const picker = task ? null : (
     <div className="lewis-picker">
-      <input list="lewis-species-list" value={text} placeholder="Search or type a formula…" aria-label="Species"
-        onChange={(e) => onType(e.target.value)}
-        onKeyDown={(e) => { if (e.key === 'Enter') { const hit = getSpecies(text); commit(hit ? hit.formula : text) } }}
-        onBlur={() => { const hit = getSpecies(text); if (hit && hit.formula !== formula) commit(hit.formula) }} />
-      <datalist id="lewis-species-list">
-        {SPECIES.map((s) => <option key={s.formula} value={s.formula}>{s.name}</option>)}
-      </datalist>
+      <FormulaPad value={text} onChange={onType} elements={LEWIS_ELEMENTS} compact label="Species formula" />
+      <select className="lewis-pick" value="" aria-label="Pick a species" onChange={(e) => { if (e.target.value) { setText(e.target.value); commit(e.target.value) } }}>
+        <option value="">Pick a species…</option>
+        {SPECIES.map((s) => <option key={s.formula} value={s.formula}>{s.formula.replace('^', ' ')} · {s.name}</option>)}
+      </select>
       <button className="btn sm" onClick={() => { const hit = getSpecies(text); commit(hit ? hit.formula : text) }}>Go</button>
       <button className="btn sm ghost" onClick={random} title="Random species">Random</button>
     </div>

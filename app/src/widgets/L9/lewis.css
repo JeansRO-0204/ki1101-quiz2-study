@@ -151,3 +151,6 @@
 .lewis-tray-ctl button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 .lewis-tray-ctl button:disabled { opacity: .35; cursor: not-allowed; }
 .lewis-tray-ctl .n { min-width: 16px; text-align: center; font-family: var(--mono); font-weight: 700; }
+.lewis-picker { flex-wrap: wrap; align-items: flex-start; }
+.lewis-picker .fp { flex: 1 1 100%; max-width: none; }
+.lewis-pick { border: 1px solid var(--line); border-radius: 8px; padding: 5px 9px; background: var(--fill); font-size: 13px; max-width: 220px; }

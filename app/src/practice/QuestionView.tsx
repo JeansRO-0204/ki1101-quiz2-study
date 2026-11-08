@@ -1,6 +1,7 @@
 // Renders and grades a single question (mcq / numeric with steps / widget). Used by Quiz, Drill and Mock.
 import { Suspense, createContext, useContext, useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import { AiNote } from './AiNote'
+import FormulaPad from '../lib/FormulaPad'
 import { Feedback, Md, NumInput, SlideRef, Step, Verdict, parseNum, sci, within, type Note } from '../lib/kit'
 import { WIDGET } from '../registry'
 import type { MCQ, NumericQ, OpenQ, OrderQ, Question, ShortQ, WidgetQ, WidgetProps, WidgetResult } from '../types'
@@ -153,11 +154,23 @@ const ST = {
   en: { check: 'Check', retry: 'Try again', saved: 'Answer saved', unsaved: 'Not answered', expected: 'Accepted answer', right: 'Correct', some: (n: number, m: number) => `${n} of ${m} correct`, help: 'Sub/superscripts: type _ or ^ (H_2O → H₂O, Fe^3+ → Fe³⁺)' },
   id: { check: 'Periksa', retry: 'Coba lagi', saved: 'Jawaban tersimpan', unsaved: 'Belum dijawab', expected: 'Jawaban yang diterima', right: 'Benar', some: (n: number, m: number) => `${n} dari ${m} benar`, help: 'Subskrip/superskrip: ketik _ atau ^ (H_2O → H₂O, Fe^3+ → Fe³⁺)' },
 }
-function BlankInput({ value, onChange, state, disabled, placeholder, label, unit, wide, onEnter }: {
-  value: string; onChange: (v: string) => void; state: 'ok' | 'err' | null; disabled?: boolean; placeholder?: string; label: string; unit?: string; wide?: boolean; onEnter?: () => void
+function BlankInput({ value, onChange, state, disabled, placeholder, label, unit, wide, onEnter, pad }: {
+  pad?: boolean; value: string; onChange: (v: string) => void; state: 'ok' | 'err' | null; disabled?: boolean; placeholder?: string; label: string; unit?: string; wide?: boolean; onEnter?: () => void
 }) {
   const ref = useRef<HTMLInputElement>(null)
   const { mode, onKeyDown } = useScriptTyping(ref, onChange)
+  const [typed, setTyped] = useState(false)
+  if (pad && !typed) {
+    return (
+      <div className={'pq-blank pq-blank-pad' + (state ? ' ' + state : '')}>
+        <span className="pq-blank-l"><Md inline>{label}</Md></span>
+        <FormulaPad value={value} onChange={onChange} disabled={disabled} compact label={label} />
+        <button type="button" className="btn ghost sm fp-type" onClick={() => setTyped(true)}>Type it instead</button>
+        {state === 'ok' && <IconCheckFill size={18} className="pq-blank-ic ok" />}
+        {state === 'err' && <IconXFill size={18} className="pq-blank-ic err" />}
+      </div>
+    )
+  }
   return (
     <label className={'pq-blank' + (wide ? ' wide' : '') + (state ? ' ' + state : '') + (mode ? ' scr-on' : '')}>
       <span className="pq-blank-l"><Md inline>{label}</Md></span>
@@ -205,7 +218,7 @@ function ShortView({ q, mode, initial, onSubmit, onNext, nextLabel, lang }: Prop
     <>
       <div className={'pq-blanks' + (wide ? ' wide' : '')}>
         {q.blanks.map((b, i) => (
-          <BlankInput key={i} label={b.label} value={vals[i] ?? ''} onChange={(v) => set(i, v)} unit={b.unit} wide={wide}
+          <BlankInput key={i} label={b.label} value={vals[i] ?? ''} onChange={(v) => set(i, v)} unit={b.unit} wide={wide || b.type === 'formula'} pad={b.type === 'formula'}
             placeholder={b.placeholder ?? (b.type === 'config' ? '[Ar] 4s^2 3d^6' : b.type === 'equation' ? 'Se^3+(g) → Se^4+(g) + e^-' : b.type === 'formula' ? 'SO_4^2-' : '')}
             state={showFb ? (oks[i] ? 'ok' : 'err') : null} disabled={review || (learn && done)} onEnter={learn ? check : undefined} />
         ))}

@@ -1,0 +1,29 @@
+/* Tap-to-build formula field (lib/FormulaPad.tsx) */
+.fp { display: grid; gap: 8px; width: 100%; max-width: 460px; }
+.fp-out { display: flex; align-items: center; gap: 2px; min-height: 44px; padding: 4px 8px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; font-size: 20px; font-weight: 600; flex-wrap: wrap; }
+.fp-ph { color: var(--muted); font-size: 14px; font-weight: 400; }
+.fp-raw { font-size: 15px; font-weight: 500; }
+.fp-tok { border: 0; background: transparent; font: inherit; padding: 2px 3px; border-radius: 7px; cursor: pointer; color: inherit; }
+.fp-tok sub { font-size: .6em; font-weight: 700; }
+.fp-tok.sel { background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.fp-chg { font-size: .8em; font-weight: 700; margin: 0 2px; }
+.fp-out .grow { flex: 1; }
+.fp-ic { border: 0; background: var(--soft); border-radius: 8px; width: 30px; height: 30px; font-size: 14px; cursor: pointer; color: #3c3c43; }
+.fp-ic:disabled { opacity: .35; cursor: default; }
+.fp-els { display: flex; flex-wrap: wrap; gap: 5px; }
+.fp-el { min-width: 38px; height: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 9px; background: #fff; font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; }
+.fp-el:hover { border-color: var(--accent); color: var(--accent); }
+.fp-el:active { background: var(--accent-soft); }
+.fp-ctl { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12.5px; }
+.fp-lab { color: var(--muted); }
+.fp-lab b { color: #1d1d1f; }
+.fp-step { width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 9px; background: #fff; font-size: 17px; line-height: 1; cursor: pointer; }
+.fp-step:disabled { opacity: .35; cursor: default; }
+.fp-val { min-width: 26px; text-align: center; font-size: 16px; }
+.fp-sep { width: 10px; }
+.fp.compact .fp-el { min-width: 34px; height: 30px; font-size: 13px; }
+.fp.off { opacity: .6; pointer-events: none; }
+
+.pq-blank-pad { position: relative; }
+.pq-blank-pad .pq-blank-ic { right: 8px; top: 0; }
+.fp-type { justify-self: start; font-size: 12px; }
