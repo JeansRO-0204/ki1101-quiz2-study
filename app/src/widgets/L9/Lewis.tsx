@@ -42,11 +42,17 @@ export default function Lewis({ mode: forced, task, onResult, compact }: WidgetP
   const res = useMemo(() => resolveCtx(formula), [formula])
 
   const commit = (v: string) => { setFormula(v); setRun((r) => r + 1) }
-  const onType = (v: string) => {
-    setText(v)
-    const hit = getSpecies(v)
-    if (hit && hit.formula.toLowerCase() === v.trim().toLowerCase()) commit(hit.formula)
-  }
+  const onType = (v: string) => setText(v)
+  // the pad builds a formula tap by tap ("N" → "NO" → "N2O2"), so follow it a moment after the last tap instead of on every change
+  useEffect(() => {
+    if (task) return
+    const t = setTimeout(() => {
+      const hit = getSpecies(text)
+      const next = hit ? hit.formula : text.trim()
+      if (next && next !== formula && resolveCtx(next).ctx) commit(next)
+    }, 600)
+    return () => clearTimeout(t)
+  }, [text]) // eslint-disable-line react-hooks/exhaustive-deps
   const random = () => {
     const pick = SPECIES[Math.floor(Math.random() * SPECIES.length)]
     setText(pick.formula)
