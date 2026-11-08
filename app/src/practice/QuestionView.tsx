@@ -9,7 +9,8 @@ import { useScriptTyping } from '../lib/scripts'
 import { ScriptArea } from '../lib/scripts'
 import { PAST_CONTEXT } from './bank'
 import { PastFigures } from './PastFigures'
-import { HintLadder, LangSwitch, loc, useLang } from './Hints'
+import { HintLadder, LangSwitch, RefLinks, loc, useLang } from './Hints'
+import { refsFor } from './refs'
 import { diagnose } from './diagnose'
 import { toggleFlag, usePStore } from './store'
 import { IconCheckFill, IconXFill } from '../lib/icons'
@@ -81,7 +82,7 @@ export default function QuestionView(props: Props & { hideMeta?: boolean }) {
       {!hideMeta && (() => { const c = PAST_CONTEXT.get(q0.id); const t = c && ((lang === 'id' ? c.introId : c.intro) ?? c.intro); return c ? <><PastFigures figs={c.figures} lang={lang} />{t && <div className="pp-intro pq-ctx"><Md>{t}</Md></div>}</> : null })()}
       <div className="pq-stem"><Md>{q.stem}</Md></div>
       <AiNote kind={q0.source === 'slide' || q0.source === 'past' || q0.past ? 'answer' : 'problem'} />
-      {mode === 'learn' && <HintLadder hints={L.hints} work={L.work} lang={lang} resetKey={q0.id} />}
+      {mode === 'learn' && <HintLadder hints={L.hints} work={L.work} lang={lang} resetKey={q0.id} refs={refsFor(q0)} />}
       {canPaper && mode !== 'review' && (
         <div className="pq-paper-sw">
           <button className="btn ghost sm" onClick={() => setOnPaper((v) => !v)}>
@@ -281,6 +282,7 @@ function Resolution({ q, ok, title, detail, onNext, nextLabel, notes, skipped, h
   q: Question; ok: boolean; title: string; detail?: string; onNext?: () => void; nextLabel?: string; notes?: Note[]; skipped?: boolean; hideExpl?: boolean
 }) {
   const store = usePStore()
+  const [lang] = useLang()
   const flagged = store.flagged.includes(q.id)
   return (
     <div className="pq-res">
@@ -288,6 +290,7 @@ function Resolution({ q, ok, title, detail, onNext, nextLabel, notes, skipped, h
       {notes && <Feedback notes={notes} />}
       {!hideExpl && <div className="pq-expl"><h4>Explanation</h4><Md>{q.explanation}</Md></div>}
       <div className="pq-foot">
+        <RefLinks refs={refsFor(q)} lang={lang} />
         {!!q.slides?.length && <span className="refs">Slides: {q.slides.map((s) => <SlideRef key={s} l={q.lecture} s={s} />)}</span>}
         <span className="grow" />
         <button className={'btn sm' + (flagged ? ' on' : '')} onClick={() => toggleFlag(q.id)} title="Mark to revisit later">{flagged ? '⚑ Flagged' : '⚐ Flag for review'}</button>

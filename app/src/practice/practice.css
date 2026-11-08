@@ -310,3 +310,7 @@ button.pq-ord-chip { cursor: pointer; transition: transform .1s, border-color .1
 .ai-note summary::-webkit-details-marker { display: none; }
 .ai-note summary:hover { color: var(--accent); }
 .ai-note p { margin: 6px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--soft); color: #3c3c43; line-height: 1.45; }
+
+/* "Review in Materials" links beside hints and solutions */
+.hl-ref { text-decoration: none; color: var(--accent); }
+.pq-foot .hl-ref { flex: none; }

@@ -3,6 +3,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 import { Md } from '../lib/kit'
 import type { Question } from '../types'
 import { IconBulbFill, IconChevronDown } from '../lib/icons'
+import { refHref, type Ref } from './refs'
 
 export type Lang = 'en' | 'id'
 /** App-wide language choice, shared live between every component that uses it, persisted in localStorage. */
@@ -60,13 +61,13 @@ const T = {
  * Hint ladder: each click reveals one more rung: hint 1 → hint 2 → … → step 1 of the worked solution → step 2 → …
  * `onUse` reports how far the learner went (for honesty in scoring/attempt logs).
  */
-export function HintLadder({ hints, work, lang = 'en', resetKey, onUse }: { hints: string[]; work: string[]; lang?: Lang; resetKey?: string; onUse?: (n: number) => void }) {
+export function HintLadder({ hints, work, lang = 'en', resetKey, onUse, refs = [] }: { hints: string[]; work: string[]; lang?: Lang; resetKey?: string; onUse?: (n: number) => void; refs?: Ref[] }) {
   const [n, setN] = useState(0)
   const [open, setOpen] = useState(true)
   useEffect(() => { setN(0); setOpen(true) }, [resetKey])
   const t = T[lang]
   const total = hints.length + work.length
-  if (!total) return null
+  if (!total && !refs.length) return null
   const shownH = hints.slice(0, Math.min(n, hints.length))
   const shownW = work.slice(0, Math.max(0, n - hints.length))
   const more = (k: number) => { const v = Math.min(total, n + k); setN(v); setOpen(true); onUse?.(v) }
@@ -91,9 +92,24 @@ export function HintLadder({ hints, work, lang = 'en', resetKey, onUse }: { hint
         {n < total && <button className="btn sm hl-btn" onClick={() => more(1)}>{inHints ? <IconBulbFill size={14} /> : null}{label}</button>}
         {n < total && !inHints && work.length - (n - hints.length) > 1 && <button className="btn sm ghost" onClick={() => more(total)}>{t.all}</button>}
         {n > 0 && <button className="btn sm ghost" onClick={() => setOpen((o) => !o)}>{open ? t.hide : `${t.hint} (${n})`}<IconChevronDown size={12} style={{ transform: open ? 'rotate(180deg)' : undefined }} /></button>}
+        <RefLinks refs={refs} lang={lang} />
         <span className="hl-pips" aria-hidden>{Array.from({ length: total }, (_, i) => <i key={i} className={(i < hints.length ? 'h' : 'w') + (i < n ? ' on' : '')} />)}</span>
       </div>
     </div>
+  )
+}
+
+/** "Review in Materials" links: open the lecture section that explains the topic in a new tab. */
+export function RefLinks({ refs, lang = 'en' }: { refs: Ref[]; lang?: Lang }) {
+  if (!refs.length) return null
+  return (
+    <>
+      {refs.map((r) => (
+        <a key={r.id} className="btn sm ghost hl-ref" href={refHref(r)} target="_blank" rel="noopener noreferrer" title={`${r.lecture}: ${r.title}`}>
+          {lang === 'id' ? 'Materi' : 'Review'}: {r.title} ↗
+        </a>
+      ))}
+    </>
   )
 }
 
