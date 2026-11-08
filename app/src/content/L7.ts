@@ -203,6 +203,15 @@ Ionisation of ground-state H: $n=1\to\infty$, $E=2.18\times10^{-18}$ J $= 1312$ 
 Slide 39: the table is divided into **blocks** by the subshell being filled.
 - **s block**: groups 1–2 (+ He). **p block**: groups 13–18. **d block**: groups 3–12 (fills $(n-1)d$). **f block**: lanthanides/actinides (fills $(n-2)f$).
 
+| Subshell | $\ell$ | Orbitals | Max e⁻ | Block | Groups | Fills |
+|---|---|---|---|---|---|---|
+| s | 0 | 1 | 2 | s block | 1–2 (+ He) | $ns$ |
+| p | 1 | 3 | 6 | p block | 13–18 | $np$ |
+| d | 2 | 5 | 10 | d block | 3–12 | $(n-1)d$ |
+| f | 3 | 7 | 14 | f block | lanthanides / actinides | $(n-2)f$ |
+
+Block width in the table equals max electrons: 2, 6, 10, 14 columns.
+
 *Filling rules (general knowledge, needed for L8 too):*
 - **Aufbau**: fill lowest energy first: 1s 2s 2p 3s 3p 4s 3d 4p 5s 4d 5p 6s 4f 5d 6p 7s …
 - **Pauli**: max 2 electrons per orbital, opposite spins (no two electrons share all four quantum numbers).
