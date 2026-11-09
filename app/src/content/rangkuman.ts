@@ -63,6 +63,8 @@ export const RANGKUMAN: CramPart[] = [
 - **Nodes:** total $n-1$; radial (spherical) $n-\ell-1$; angular (planar) $\ell$.
 - An orbital is a probability region from $|\Psi|^2$, **not** an orbit.
 
+**Finding the four for an electron:** (1) write the configuration (cations lose highest-$n$ electrons first); (2) pick the electron; (3) $n$ = the shell number, $\ell$ from the letter (s 0, p 1, d 2, f 3); (4) draw the subshell as boxes $m_\ell=-\ell\dots+\ell$ left to right, fill ↑ first (Hund), read the box; (5) ↑ = $+\tfrac12$, ↓ = $-\tfrac12$. Mn³⁺ $[\text{Ar}]3d^4$: $n=3,\ \ell=2,\ m_\ell\in\{-2,\dots,1\},\ m_s=+\tfrac12$.
+
 **Traps:** no 1p, 2d or 3f ($\ell\le n-1$). $|m_\ell|\le\ell$. Pauli: no two electrons share all four numbers.
 `,
       },

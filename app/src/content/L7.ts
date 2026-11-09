@@ -348,6 +348,17 @@ An electron excited to level $n$ can come back down in one jump or in several sm
 - **Shapes (slides 35–37):** s spherical; p dumbbell (3 orientations, $p_x,p_y,p_z$); d four-lobed cloverleaf (plus $d_{z^2}$).
 - **Slide 38** plots the probability against distance $r$: 1s has one hump; 2s has a small inner hump, a node, then a big hump; 3s has two nodes. The number of humps is $n-\ell$.
 
+**How to find $n$, $\ell$, $m_\ell$, $m_s$ for a given electron**
+1. Write the ground-state configuration of the atom or ion (for a cation, remove electrons from the highest $n$ first; see the ions section).
+2. Pick the electron you are asked about (outermost = highest $n$; if several subshells share it, the one still being filled; an *unpaired* electron sits in a half-filled orbital).
+3. **$n$** = the number in front of the subshell (3d → $n=3$). **$\ell$** from the letter: s 0, p 1, d 2, f 3.
+4. **$m_\ell$**: draw the subshell as $2\ell+1$ boxes labelled $-\ell\ \dots\ +\ell$ from left to right. Fill with Hund's rule (one ↑ in each box first, then pair with ↓). The box your electron sits in gives $m_\ell$.
+5. **$m_s$**: $+\tfrac12$ for ↑, $-\tfrac12$ for ↓. First electron in a box is ↑ by convention.
+
+*Example:* Mn$^{3+}$ is $[\text{Ar}]3d^4$. Four unpaired electrons in 3d: $n=3,\ \ell=2$, $m_\ell$ is any of $-2,-1,0,+1$ (the filled boxes), $m_s=+\tfrac12$. Any one of those sets is a correct answer to "write one possible set".
+
+*Check any set:* $\ell<n$? $|m_\ell|\le\ell$? $m_s=\pm\tfrac12$? All three must pass; otherwise the set is not allowed.
+
 **Worked example.** Is $n=2,\ \ell=2$ allowed? No: $\ell\le n-1=1$. Is $n=3,\ \ell=1,\ m_\ell=-1$ allowed? Yes (a 3p orbital). How many electrons can have $n = 3$? $2n^2 = 18$. How many with $n=3,\ \ell=1$? 3 orbitals × 2 = 6.
 `,
       traps: [
