@@ -75,7 +75,16 @@ export interface Section {
   widgets?: string[]
   /** short "common traps" list, rendered as a callout */
   traps?: string[]
+  /** "Must know" bullets shown at the top of the section (inline markdown): the few things a quiz actually asks */
+  essentials?: string[]
+  /** "Key formulas" box under the must-knows: name, KaTeX formula (no $), and what each symbol means / units */
+  formulas?: KeyFormula[]
+  /** static diagrams (ids registered in widgets/<lecture>/figures.tsx) rendered right after the markdown */
+  figures?: string[]
 }
+export interface KeyFormula { name: string; tex: string; where?: string }
+/** A static diagram for Materials / Rangkuman: no interaction needed, drawn to match the lecture slides. */
+export interface FigureDef { title: string; caption?: string; C: import('react').ComponentType }
 export interface Lecture {
   id: LectureId
   title: string

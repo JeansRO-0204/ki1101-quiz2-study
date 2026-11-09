@@ -5,14 +5,16 @@ import { LECTURES, type LectureId } from '../types'
 import { Md, SlideRef, openInWorkspace, useLocalState } from '../lib/kit'
 import { IconChevronLeft, IconPopOut, IconSidebar, IconSlides, IconSparkles } from '../lib/icons'
 const SlidesModal = lazy(() => import('./SlidesModal'))
+const Rangkuman = lazy(() => import('./Rangkuman'))
+import { Figure, KeyFormulas, MustKnow } from './parts'
 
-export default function Learn({ lecture, section }: { lecture: LectureId; section?: string }) {
+export default function Learn({ lecture, section, cram }: { lecture: LectureId; section?: string; cram?: boolean }) {
   const L = CONTENT[lecture]
   const meta = LECTURES.find((l) => l.id === lecture)!
   useEffect(() => {
     if (section) document.getElementById('sec-' + section)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     else document.querySelector('.learn-main')?.scrollTo({ top: 0 })
-  }, [lecture, section])
+  }, [lecture, section, cram])
 
   const [collapsed, setCollapsed] = useLocalState('learn.side.collapsed', false)
   const [slides, setSlides] = useState(false)
@@ -22,7 +24,8 @@ export default function Learn({ lecture, section }: { lecture: LectureId; sectio
       {collapsed ? (
         <aside className="learn-rail" aria-label="Lectures">
           <button className="rail-b" onClick={() => setCollapsed(false)} title="Show sidebar" aria-label="Show sidebar"><IconSidebar size={18} /></button>
-          {LECTURES.map((l) => <a key={l.id} href={`#/learn/${l.id}`} className={'rail-l' + (l.id === lecture ? ' on' : '')} style={{ ['--c' as string]: l.color }} title={l.title}>{l.id.replace('L', '')}</a>)}
+          <a href="#/learn/rangkuman" className={'rail-l rail-cram' + (cram ? ' on' : '')} title="Rangkuman">★</a>
+          {LECTURES.map((l) => <a key={l.id} href={`#/learn/${l.id}`} className={'rail-l' + (l.id === lecture && !cram ? ' on' : '')} style={{ ['--c' as string]: l.color }} title={l.title}>{l.id.replace('L', '')}</a>)}
           <span className="grow" />
           <button className="rail-b" onClick={() => setSlides(true)} title="Lecture slides" aria-label="Lecture slides"><IconSlides size={18} /></button>
         </aside>
@@ -33,10 +36,11 @@ export default function Learn({ lecture, section }: { lecture: LectureId; sectio
           <button className="btn ghost sm" onClick={() => setCollapsed(true)} title="Hide sidebar" aria-label="Hide sidebar"><IconChevronLeft size={14} /><IconSidebar size={16} /></button>
         </div>
         <div className="side-list">
+        <a className={'cram-link' + (cram ? ' on' : '')} href="#/learn/rangkuman"><b>★ Rangkuman</b><span>Everything for the quiz on one page</span></a>
         {LECTURES.map((l) => (
-          <div key={l.id} className={'lec' + (l.id === lecture ? ' on' : '')} style={{ ['--c' as string]: l.color }}>
+          <div key={l.id} className={'lec' + (l.id === lecture && !cram ? ' on' : '')} style={{ ['--c' as string]: l.color }}>
             <a className="lec-head" href={`#/learn/${l.id}`}><span className="dot" />{l.id.replace('L', '')}. {l.title}</a>
-            {l.id === lecture && (
+            {l.id === lecture && !cram && (
               <ul>
                 {CONTENT[l.id].sections.map((s) => (
                   <li key={s.id}><a className={s.id === section ? 'on' : ''} href={`#/learn/${l.id}/${s.id}`}>{s.title}</a></li>
@@ -53,13 +57,14 @@ export default function Learn({ lecture, section }: { lecture: LectureId; sectio
       )}
       <div className="learn-main">
         <nav className="learn-mnav" aria-label="Lectures and sections">
-          <div className="learn-mlecs">{LECTURES.map((l) => <a key={l.id} href={`#/learn/${l.id}`} className={l.id === lecture ? 'on' : ''} style={{ ['--c' as string]: l.color }}>{l.id.replace('L', '')}. {l.title}</a>)}</div>
+          <div className="learn-mlecs"><a href="#/learn/rangkuman" className={cram ? 'on' : ''}>★ Rangkuman</a>{LECTURES.map((l) => <a key={l.id} href={`#/learn/${l.id}`} className={l.id === lecture && !cram ? 'on' : ''} style={{ ['--c' as string]: l.color }}>{l.id.replace('L', '')}. {l.title}</a>)}</div>
           <button className="btn sm" onClick={() => setSlides(true)}><IconSlides size={14} />Slides</button>
-          <select className="field" value={section ?? ''} onChange={(e) => { location.hash = `#/learn/${lecture}${e.target.value ? '/' + e.target.value : ''}` }} aria-label="Jump to section">
+          {!cram && <select className="field" value={section ?? ''} onChange={(e) => { location.hash = `#/learn/${lecture}${e.target.value ? '/' + e.target.value : ''}` }} aria-label="Jump to section">
             <option value="">Jump to section…</option>
             {L.sections.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
-          </select>
+          </select>}
         </nav>
+        {cram ? <Suspense fallback={<div className="ph">Loading…</div>}><Rangkuman /></Suspense> : <>
         <header className="lec-banner" style={{ ['--c' as string]: meta.color }}>
           <small>Lecture {lecture.replace('L', '')}</small>
           <h1>{L.title || meta.title}</h1>
@@ -69,7 +74,10 @@ export default function Learn({ lecture, section }: { lecture: LectureId; sectio
         {L.sections.map((s) => (
           <article key={s.id} id={'sec-' + s.id} className="sec">
             <h2>{s.title}</h2>
+            <MustKnow items={s.essentials} />
+            <KeyFormulas items={s.formulas} />
             <Md>{s.md}</Md>
+            {s.figures?.map((id) => <Figure key={id} id={id} />)}
             {s.traps && s.traps.length > 0 && (
               <div className="traps"><b>Common traps</b><ul>{s.traps.map((t, i) => <li key={i}><Md inline>{t}</Md></li>)}</ul></div>
             )}
@@ -87,6 +95,7 @@ export default function Learn({ lecture, section }: { lecture: LectureId; sectio
             })}
           </article>
         ))}
+        </>}
       </div>
       {slides && <Suspense fallback={null}><SlidesModal initial={lecture} onClose={() => setSlides(false)} /></Suspense>}
     </div>
