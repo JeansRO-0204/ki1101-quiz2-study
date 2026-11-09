@@ -300,3 +300,18 @@ input[type=range] { accent-color: var(--accent); }
   .sec { box-shadow: none !important; break-inside: auto; margin: 8px 0 !important; }
   .cram-block { break-inside: avoid; }
 }
+
+/* ---------- Materials search ---------- */
+.side-search { padding: 0 10px 8px; }
+.msearch-in { width: 100%; box-sizing: border-box; }
+.msearch-res { display: grid; gap: 4px; }
+.msearch-hit { display: grid; grid-template-columns: auto 1fr; gap: 1px 8px; padding: 8px 10px; border-radius: 10px; text-decoration: none; color: var(--ink); background: #fff; border: 1px solid var(--line); align-items: baseline; }
+.msearch-hit:hover, .msearch-hit:focus-visible { border-color: var(--accent); outline: none; }
+.msearch-tag { grid-row: 1; font-size: 10.5px; font-weight: 700; color: #fff; background: var(--c); border-radius: 6px; padding: 1px 6px; }
+.msearch-t { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+.msearch-s { grid-column: 1 / -1; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.msearch-hit mark { background: #fff2a8; color: inherit; border-radius: 3px; padding: 0 1px; }
+.msearch-none { font-size: 13px; padding: 6px 4px; margin: 0; }
+.mnav-search { flex: 1 1 100%; display: grid; gap: 6px; }
+@media (min-width: 801px) { .mnav-search { display: none; } }
+.mnav-search .msearch-res { max-height: 38vh; overflow-y: auto; }

@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { CONTENT } from '../content'
 import { WIDGET } from '../registry'
 import { LECTURES, type LectureId } from '../types'
@@ -7,6 +7,7 @@ import { IconChevronLeft, IconPopOut, IconSidebar, IconSlides, IconSparkles } fr
 const SlidesModal = lazy(() => import('./SlidesModal'))
 const Rangkuman = lazy(() => import('./Rangkuman'))
 import { Figure, KeyFormulas, MustKnow } from './parts'
+import { SearchBox, SearchResults, useSlashFocus } from './Search'
 
 export default function Learn({ lecture, section, cram }: { lecture: LectureId; section?: string; cram?: boolean }) {
   const L = CONTENT[lecture]
@@ -18,6 +19,9 @@ export default function Learn({ lecture, section, cram }: { lecture: LectureId; 
 
   const [collapsed, setCollapsed] = useLocalState('learn.side.collapsed', false)
   const [slides, setSlides] = useState(false)
+  const [q, setQ] = useState('')
+  const sideSearch = useRef<HTMLInputElement>(null)
+  useSlashFocus(sideSearch)
 
   return (
     <div className={'learn' + (collapsed ? ' collapsed' : '')}>
@@ -35,7 +39,9 @@ export default function Learn({ lecture, section, cram }: { lecture: LectureId; 
           <span className="muted side-cap">Lectures</span>
           <button className="btn ghost sm" onClick={() => setCollapsed(true)} title="Hide sidebar" aria-label="Hide sidebar"><IconChevronLeft size={14} /><IconSidebar size={16} /></button>
         </div>
+        <div className="side-search"><SearchBox q={q} setQ={setQ} inputRef={sideSearch} /></div>
         <div className="side-list">
+        {q.trim() ? <SearchResults q={q} onPick={() => setQ('')} /> : <>
         <a className={'cram-link' + (cram ? ' on' : '')} href="#/learn/rangkuman"><b>★ Rangkuman</b><span>Everything for the quiz on one page</span></a>
         {LECTURES.map((l) => (
           <div key={l.id} className={'lec' + (l.id === lecture && !cram ? ' on' : '')} style={{ ['--c' as string]: l.color }}>
@@ -49,6 +55,7 @@ export default function Learn({ lecture, section, cram }: { lecture: LectureId; 
             )}
           </div>
         ))}
+        </>}
         </div>
         <div className="side-foot">
           <button className="btn side-slides" onClick={() => setSlides(true)}><IconSlides size={16} />Lecture slides</button>
@@ -59,6 +66,7 @@ export default function Learn({ lecture, section, cram }: { lecture: LectureId; 
         <nav className="learn-mnav" aria-label="Lectures and sections">
           <div className="learn-mlecs"><a href="#/learn/rangkuman" className={cram ? 'on' : ''}>★ Rangkuman</a>{LECTURES.map((l) => <a key={l.id} href={`#/learn/${l.id}`} className={l.id === lecture && !cram ? 'on' : ''} style={{ ['--c' as string]: l.color }}>{l.id.replace('L', '')}. {l.title}</a>)}</div>
           <button className="btn sm" onClick={() => setSlides(true)}><IconSlides size={14} />Slides</button>
+          <div className="mnav-search"><SearchBox q={q} setQ={setQ} />{q.trim() && <SearchResults q={q} onPick={() => setQ('')} />}</div>
           {!cram && <select className="field" value={section ?? ''} onChange={(e) => { location.hash = `#/learn/${lecture}${e.target.value ? '/' + e.target.value : ''}` }} aria-label="Jump to section">
             <option value="">Jump to section…</option>
             {L.sections.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
